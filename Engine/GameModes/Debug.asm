@@ -96,6 +96,7 @@ DebugLoop:
     dw      Debug_InvalidMenu
     dw      Debug_InvalidMenu
     dw      Debug_InvalidMenu
+    dw      Debug_InvalidMenu
 NUM_DEBUG_ITEMS = ((@ - .menuitems) / 2) - 1
 
 ; REMOVE ME DEBUG KEY FOR TESTING MANS SPRITES
@@ -157,6 +158,7 @@ Debug_MainMenuText:
     db  "  Battle test       "
     db  "  Battle anim test  "
     db  "  Sprite viewer     "
+    db  "  MansDex           "
     db  "  Sound test        "
     db  "                    "
     db  "                    "

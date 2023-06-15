@@ -64,6 +64,7 @@ DrawMansPic:
 :   push    af
     ; get tilemap coordinates
     ; TODO: This doesn't work properly
+    ld      b,b
     ld      a,b
     and     $f0
     swap    a
@@ -71,11 +72,9 @@ DrawMansPic:
     ld      h,0
     add     hl,hl   ; x2
     add     hl,hl   ; x4
-    ld      d,h
-    ld      e,l
     add     hl,hl   ; x8
     add     hl,hl   ; x16
-    add     hl,de   ; x20
+    add     hl,hl   ; x32
     ld      de,_SCRN0
     add     hl,de
     ld      a,b
