@@ -50,6 +50,32 @@ _Left           equ 1 << btnLeft
 _Up             equ 1 << btnUp
 _Down           equ 1 << btnDown
 
+; --------
+
+macro ldfar
+    ld      b,bank(\2)
+    rst     Bankswitch
+    ld      \1,\2
+endm
+    
+; Loads appropriate ROM bank for a routine and executes it.
+; Trashes B.
+macro farcall
+    ld      b,bank(\1)
+    rst     Bankswitch
+    call    \1
+endm
+    
+macro resbank
+    ldh     a,[sys_LastBank]
+    ldh     [sys_CurrentBank],a
+    ld      [rROMB0],a
+endm
+
+macro tmcoord
+    ld      hl,((\2*20) | \1)
+    endm
+    
 macro WaitForVRAM
     ldh     a,[rSTAT]
     and     STATF_BUSY
@@ -79,6 +105,13 @@ macro dbw
     dw      \2
 endm
 
+macro dwfar
+    db      bank(\1)
+    dw      \1
+    endm
+
+; --------
+
 section "OAM buffer",wram0,align[8]
 OAMBuffer:  ds  40 * 4
 OAMBuffer_End:
@@ -95,6 +128,8 @@ sys_STATFlag:       db
 sys_TimerFlag:      db
 sys_SerialFlag:     db
 sys_JoypadFlag:     db
+sys_CurrentBank:    db
+sys_LastBank:       db
 
 section "OAM DMA routine",hram[$fff0]
 sys_OAMDMA: ds  15
@@ -121,7 +156,7 @@ section "Reset $20",rom0[$20]
 WaitTimer:  jp  _WaitTimer
 
 section "Reset $28",rom0[$28]
-Bankswitch: ; jp  Bankswitch
+Bankswitch: jp  _Bankswitch
     ret
 
 section "Reset $30",rom0[$30]
@@ -241,6 +276,18 @@ include "Engine/GameModes/Battle.asm"
 ; ================================================================
 ; Support routines
 ; ================================================================
+
+; Performs a bankswitch to bank B, preserving previous ROM bank.
+; INPUT:    b = bank
+_Bankswitch:
+    push    af
+    ldh     a,[sys_CurrentBank]
+    ldh     [sys_LastBank],a        ; preserve old ROM bank
+    ld      a,b
+    ldh     [sys_CurrentBank],a     ; set new ROM bank
+    ld      [rROMB0],a              ; perform bankswitch
+    pop     af
+    ret
 
 OAMDMA: ; copied to HRAM during startup
     ld      a,high(OAMBuffer)
@@ -374,6 +421,7 @@ PrintString:
 
 include "Engine/WLE_Decode.asm"
 include "Engine/Math.asm"
+include "Engine/Pic.asm"
     
 ; ================================================================
 ; Interrupt handlers
@@ -536,3 +584,5 @@ _WaitJoypad:
 ; ================================================================
 
 Font:   incbin  "GFX/Font.2bpp.wle"
+
+include "Data/MansPics.asm"

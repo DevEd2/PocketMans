@@ -4,10 +4,14 @@ section fragment "WRAM defines",wram0
 Debug_MenuPos:  db
 Debug_MenuMax:  db
 Debug_MenuYPos: db
+Debug_PicTest:  db
 
 section "Debug menu routines",rom0
 
 GM_Debug:
+    ; REMOVE ME
+    xor     a
+    ld      [Debug_PicTest],a
     ldh     a,[rLCDC]
     bit     7,a
     jr      z,:+
@@ -71,7 +75,7 @@ DebugLoop:
 
 .checkA
     bit     btnA,a
-    jr      z,.drawcursor
+    jr      z,.checkselect
     ld      hl,.menuitems
     ld      a,[Debug_MenuPos]
     add     a
@@ -93,6 +97,18 @@ DebugLoop:
     dw      Debug_InvalidMenu
     dw      Debug_InvalidMenu
 NUM_DEBUG_ITEMS = ((@ - .menuitems) / 2) - 1
+
+; REMOVE ME DEBUG KEY FOR TESTING MANS SPRITES
+.checkselect
+    bit     btnSelect,a
+    jr      z,.drawcursor
+    ld      hl,Debug_PicTest
+    ld      a,[hl]
+    inc     [hl]
+    lb      bc,0,0
+    ld      de,$9000
+    call    DrawMansPic
+    ; fall through
 
 .drawcursor
     call    Debug_DrawCursor
