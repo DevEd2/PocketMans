@@ -1,13 +1,13 @@
-PROJECTNAME=mans_cgb
+PROJECTNAME=mans_gb
 
-$(PROJECTNAME).gbc: gfx
+$(PROJECTNAME).gb: gfx
 	rgbasm -H -o $(PROJECTNAME).obj -p 255 Main.asm
-	rgblink -p 255 -o $(PROJECTNAME).gbc -n $(PROJECTNAME).sym $(PROJECTNAME).obj
-	rgbfix -v -p 255 $(PROJECTNAME).gbc
-	md5sum $(PROJECTNAME).gbc
+	rgblink -p 255 -o $(PROJECTNAME).gb -n $(PROJECTNAME).sym $(PROJECTNAME).obj
+	rgbfix -v -p 255 $(PROJECTNAME).gb
+	md5sum $(PROJECTNAME).gb
 
 clean:
-	find . -type f -name "*.gbc" -delete
+	find . -type f -name "*.gb" -delete
 	find . -type f -name "*.sym" -delete
 	find . -type f -name "*.obj" -delete
 	find GFX/Mans/Front/ -type f -name "*.png.wle" -delete

@@ -535,4 +535,4 @@ _WaitJoypad:
 ; GFX data
 ; ================================================================
 
-Font:   incbin  "GFX/Font.gfx.wle"
+Font:   incbin  "GFX/Font.2bpp.wle"
