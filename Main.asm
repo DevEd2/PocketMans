@@ -32,6 +32,24 @@ include "hardware.inc/hardware.inc"
 ; Defines
 ; ================================================================
 
+btnA            equ 0
+btnB            equ 1
+btnSelect       equ 2
+btnStart        equ 3
+btnRight        equ 4
+btnLeft         equ 5
+btnUp           equ 6
+btnDown         equ 7
+
+_A              equ 1 << btnA
+_B              equ 1 << btnB
+_Select         equ 1 << btnSelect
+_Start          equ 1 << btnStart
+_Right          equ 1 << btnRight
+_Left           equ 1 << btnLeft
+_Up             equ 1 << btnUp
+_Down           equ 1 << btnDown
+
 macro WaitForVRAM
     ldh     a,[rSTAT]
     and     STATF_BUSY
@@ -65,9 +83,6 @@ section "OAM buffer",wram0,align[8]
 OAMBuffer:  ds  40 * 4
 OAMBuffer_End:
 
-section "OAM DMA routine",hram
-sys_OAMDMA: ds  $10
-
 section "System RAM",hram
 sys_GBType:         db
 sys_CurrentFrame:   db
@@ -81,6 +96,11 @@ sys_TimerFlag:      db
 sys_SerialFlag:     db
 sys_JoypadFlag:     db
 
+section "OAM DMA routine",hram[$fff0]
+sys_OAMDMA: ds  15
+
+section fragment "WRAM defines",wram0
+
 ; ================================================================
 ; Reset vectors
 ; ================================================================
@@ -89,19 +109,20 @@ section "Reset $00",rom0[$00]
 Reset00:    jp  EntryPoint
 
 section "Reset $08",rom0[$08]
-WaitVBlank: jp  _WaitVBlank
+DoOAMDMA:   jr  sys_OAMDMA
 
 section "Reset $10",rom0[$10]
-Reset10:    ret
+WaitVBlank: jp  _WaitVBlank
 
 section "Reset $18",rom0[$18]
-Reset18:    ret
+WaitSTAT:   jp  _WaitSTAT
 
 section "Reset $20",rom0[$20]
-Reset20:    ret
+WaitTimer:  jp  _WaitTimer
 
 section "Reset $28",rom0[$28]
-Reset28:    ret
+Bankswitch: ; jp  Bankswitch
+    ret
 
 section "Reset $30",rom0[$30]
 Reset30:    ret
@@ -201,8 +222,13 @@ Start:
     
     ld      a,%11100100
     ldh     [rBGP],a
+    ldh     [rOBP1],a
+    ld      a,%11100000
+    ldh     [rOBP0],a
     
-    ; fall through
+    if DebugMode
+        jp  GM_Debug
+    endc
     
 ; ================================================================
 ; Game mode includes
@@ -360,6 +386,48 @@ DoVBlank:
     push    hl
     ld      a,1
     ldh     [sys_VBlankFlag],a
+    
+    ld      hl,sys_CurrentFrame
+    inc     [hl]
+    
+    ld      a,[sys_btnHold]
+    ld      c,a
+    ld      a,P1F_5
+    ldh     [rP1],a
+    ldh     a,[rP1]
+    ldh     a,[rP1]
+    cpl
+    and     $f
+    swap    a
+    ld      b,a
+    ld      a,P1F_4
+    ldh     [rP1],a
+    ldh     a,[rP1]
+    ldh     a,[rP1]
+    ldh     a,[rP1]
+    ldh     a,[rP1]
+    ldh     a,[rP1]
+    ldh     a,[rP1]
+    cpl
+    and     $f
+    or      b
+    ld      b,a
+    
+    ld      a,[sys_btnHold]
+    xor     b
+    and     b
+    ld      [sys_btnPress],a    ; store buttons pressed this frame
+    ld      e,a
+    ld      a,b
+    ld      [sys_btnHold],a     ; store held buttons
+    xor     c
+    xor     e
+    ld      [sys_btnRelease],a  ; store buttons released this frame
+    ld      a,P1F_5|P1F_4
+    ldh     [rP1],a
+    
+    rst     DoOAMDMA
+    
     pop     hl
     pop     de
     pop     bc
