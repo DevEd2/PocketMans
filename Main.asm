@@ -52,6 +52,11 @@ _Down           equ 1 << btnDown
 
 ; --------
 
+macro dstr
+    db  \1
+    db  0
+endm
+
 macro ldfar
     ld      b,bank(\2)
     rst     Bankswitch
@@ -132,9 +137,10 @@ sys_CurrentBank:    db
 sys_LastBank:       db
 
 section "OAM DMA routine",hram[$fff0]
-sys_OAMDMA: ds  15
+sys_OAMDMA:         ds  15
 
 section fragment "WRAM defines",wram0
+sys_StringBuffer:   ds  20
 
 ; ================================================================
 ; Reset vectors
@@ -211,6 +217,8 @@ ROMChecksum:    dw  0 ; handled by post-linking tool
 ; Start of program code
 ; ================================================================
 
+section fragment "Program code",rom0[$150]
+
 Start:
     di
     ld      sp,$dffe
@@ -272,10 +280,13 @@ Start:
 include "Engine/GameModes/Debug.asm"
 include "Engine/GameModes/Overworld.asm"
 include "Engine/GameModes/Battle.asm"
+include "Engine/GameModes/SpriteView.asm"
 
 ; ================================================================
 ; Support routines
 ; ================================================================
+
+section fragment "Program code",rom0
 
 ; Performs a bankswitch to bank B, preserving previous ROM bank.
 ; INPUT:    b = bank
@@ -414,10 +425,47 @@ PrintString:
     ld      a,[hl+]
     and     a           ; terminator byte reached?
     ret     z           ; if yes, return
-    sub     " "
+    sub     " " + $80
     ld      [de],a
     inc     de
     jr      PrintString
+
+PrintMansName:
+    ld      b,12
+:   WaitForVRAM
+    ld      a,[hl+]
+    sub     " " + $80
+    ld      [de],a
+    inc     de
+    djnz    :-
+    ret
+
+; INPUT:                  a = hexadecimal number
+; OUTPUT:  sys_StringBuffer = converted number
+; TRASHES: bc, hl
+; Adapted from https://wikiti.brandonw.net/index.php?title=Z80_Routines:Other:DispA
+Hex2Dec8:
+    inc     a
+    ld      hl,sys_StringBuffer
+    ld      c,-100
+    call    :+      ; hundreds place
+    ld      c,-10
+    call    :+      ; tens place
+    ld      c,-1
+    call    :+
+    ld      [hl],0
+    ret
+:   ld      b,-1
+:   inc     b
+    add     c
+    jr      c,:-
+    sub     c
+    push    af
+    ld      a,b
+    add     "0"
+    ld      [hl+],a
+    pop     af
+    ret
 
 include "Engine/WLE_Decode.asm"
 include "Engine/Math.asm"
@@ -585,4 +633,5 @@ _WaitJoypad:
 
 Font:   incbin  "GFX/Font.2bpp.wle"
 
+include "Data/MansNames.asm"
 include "Data/MansPics.asm"

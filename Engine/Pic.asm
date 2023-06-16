@@ -1,4 +1,4 @@
-section "Mans pic RAM",wram0
+section "Mans pic RAM",wramx
 PicBuffer:  ds  (8*8)*16
 
 section "Mans pic routines",rom0
@@ -19,7 +19,10 @@ DrawMansPic:
     add     hl,de
     ld      a,[hl+]
     ld      b,a
-    bit     1,c
+    ld      a,[hl+]
+    ld      h,[hl]
+    ld      l,a
+    bit     0,c
     jr      z,:+
     inc     hl
     inc     hl
@@ -57,14 +60,11 @@ DrawMansPic:
     ld      a,d
     and     $0f
     swap    a
-    add     a
     or      e
     jr      nc,:+
     inc     d
 :   push    af
     ; get tilemap coordinates
-    ; TODO: This doesn't work properly
-    ld      b,b
     ld      a,b
     and     $f0
     swap    a
@@ -74,7 +74,7 @@ DrawMansPic:
     add     hl,hl   ; x4
     add     hl,hl   ; x8
     add     hl,hl   ; x16
-    add     hl,hl   ; x32
+    add     hl,hl   ; x32                                                            `
     ld      de,_SCRN0
     add     hl,de
     ld      a,b

@@ -94,7 +94,7 @@ DebugLoop:
     dw      Debug_InvalidMenu
     dw      Debug_InvalidMenu
     dw      Debug_InvalidMenu
-    dw      Debug_InvalidMenu
+    dw      GM_SpriteView
     dw      Debug_InvalidMenu
     dw      Debug_InvalidMenu
 NUM_DEBUG_ITEMS = ((@ - .menuitems) / 2) - 1
@@ -148,6 +148,8 @@ Debug_InvalidMenu:
     ; PlaySFX menudenied
     jr      DebugLoop.drawcursor
 
+; ================
+
 section "Debug menu text",rom0
 Debug_MainMenuText:
     db  "                    "
@@ -164,14 +166,12 @@ Debug_MainMenuText:
     db  "                    "
     db  "                    "
     db  "                    "
-    db  "                    "
-    db  "                    "
-    db  "                    "
     db  " BUILD DATE:        "
     db  " "
     dbp __DATE__,19," "
     db  " "
     dbp __TIME__,19," "
+    db  "                    "
     db  "                    "
 
 endc
