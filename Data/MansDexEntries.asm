@@ -16,7 +16,7 @@ MansDex_001: ; FIGHTMANS
 ;            ####################
     dstr    "BOXING"
     db      "This MANS is trained",$80
-    db      "in martial arts.",$81
+    db      "in martial arts.",$80
     db      "It can punch with",$80
     db      "the force of a punch",$80
     db      "to the face."$ff
@@ -25,7 +25,7 @@ MansDex_002: ; BIZMANS
 ;            ####################
     dstr    "OFFICE"
     db      "This MANS is good at",$80
-    db      "office work."$81
+    db      "office work."$80
     db      "Some companies have",$80
     db      "started employing",$80
     db      "BIZMANS.",$ff
@@ -35,7 +35,7 @@ MansDex_003: ; MACHOMANS
     dstr    "MANLY"
     db      "This MANS is the",$80
     db      "MANSliest of all the",$80
-    db      "MANS.",$81
+    db      "MANS.",$80
     db      "Or so it claims.",$ff
 
 MansDex_004: ; ROCKMANS
@@ -53,7 +53,7 @@ MansDex_005: ; PAPERMANS
     dstr    "DELIVERY"
     db      "Many monsters rely",$80
     db      "on this MANS' skill",$80
-    db      "at delivering mail."
+    db      "at delivering mail.",$80
     db      "It doesn't get along",$80
     db      "with lycanthropes.",$ff
 
@@ -61,17 +61,17 @@ MansDex_006: ; SCISSORMANS
 ;            ####################
     dstr    "CUTTING"
     db      "This MANS can cut",$80
-    db      "just about anything.",$81
-    db      "However, it never",$80
-    db      "asks for permission",$80
-    db      "before doing so.",$ff
+    db      "through just about",$80
+    db      "anything. However,",$80
+    db      "it never asks for",$80
+    db      "permission first.",$ff
 
 MansDex_007: ; ICECREAMMANS
 ;            ####################
     dstr    "FROZEN TREAT"
     db      "This MANS, by means",$80
     db      "currently unknown,",$80
-    db      "can produce a cold,",$81
+    db      "can produce a cold,",$80
     db      "sweet substance from",$80
     db      "seemingly thin air.",$81
     db      "This substance has",$80
@@ -86,7 +86,7 @@ MansDex_008: ; ARSONMANS
     db      "burn.",$81
     db      "Attempts to convince",$80
     db      "it that the world",$80
-    db      "is not flammable",$81
+    db      "is not flammable",$80
     db      "have proven to be",$80
     db      "unsuccessful.",$ff
 
