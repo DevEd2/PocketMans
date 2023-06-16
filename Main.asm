@@ -121,6 +121,9 @@ section "OAM buffer",wram0,align[8]
 OAMBuffer:  ds  40 * 4
 OAMBuffer_End:
 
+section "Stack",wram0[$cf00]
+sys_Stack:          ds  256
+
 section "System RAM",hram
 sys_GBType:         db
 sys_CurrentFrame:   db
@@ -221,7 +224,7 @@ section fragment "Program code",rom0[$150]
 
 Start:
     di
-    ld      sp,$dffe
+    ld      sp,sys_Stack
     push    af
     ; wait for vblank and disable lcd
     ld      hl,rLY
