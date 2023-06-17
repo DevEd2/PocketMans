@@ -26,10 +26,10 @@ DrawMansPic:
     jr      z,:+
     inc     hl
     inc     hl
-:   ld      a,[hl+]
+:   rst     Bankswitch
+    ld      a,[hl+]
     ld      h,[hl]
     ld      l,a
-    rst     Bankswitch
     ld      de,PicBuffer
     call    DecodeWLE
     pop     de
