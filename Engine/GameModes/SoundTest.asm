@@ -138,8 +138,10 @@ SoundTestLoop:
     ; TODO
 .checkb
     bit     btnB,e
-    jp      nz,GM_Debug
-    
+    jr      z,.continue
+    farcall    DSX_StopMusic
+    jp      GM_Debug
+.continue    
     ld      a,[Debug_MusicID]
     ld      hl,$9828
     call    PrintHex
