@@ -1919,5 +1919,90 @@ db      "$$endcode$$"
 
 ; ================================================================
 
+; shared percussion sounds
+Ins_SoftKick:
+    dw  Vol_Kick,Arp_SoftKick,Noise_SoftKick,DSX_DummyTable
+    dw  0,0,0,0
+Ins_Kick:
+    dw  Vol_Kick,Arp_Kick,Noise_Kick,DSX_DummyTable
+    dw  0,0,0,0
+Ins_Snare:
+    dw  Vol_Snare,Arp_Snare,Noise_Snare,DSX_DummyTable
+    dw  0,0,0,0
+Ins_CHH:
+    dw  Vol_CHH,Arp_CHH,Noise_CHH,DSX_DummyTable
+    dw  0,0,0,0
+Ins_OHH:
+    dw  Vol_OHH,Arp_OHH,Noise_OHH,DSX_DummyTable
+    dw  0,0,0,0
+Ins_Cymbal:
+    dw  Vol_Cymb,Arp_Cymb,Noise_Cymb,DSX_DummyTable
+    dw  0,0,0,0
+Ins_CymbR:
+    dw  Vol_CymbR,Arp_CymbR,Noise_OHH,DSX_DummyTable
+    dw  0,0,0,0
+
+Vol_Kick:
+    db  15,15,14,12,1,4,4,3,3,2,2,1,1,0,seq_end
+Vol_Snare:
+    db  12,11,10,9,8,7,6,5,4,3,2,1,0,seq_end
+Vol_CHH:
+    db  6,3,3,2,seq_wait,4,1,1,1,0,seq_end
+Vol_OHH:
+    db  6,5,4,4,3,seq_wait,3,2,seq_end
+Vol_Cymb:
+    db  10,seq_wait,7
+    db   6,seq_wait,7
+    db   5,seq_wait,7
+    db   4,seq_wait,7
+    db   3,seq_wait,15
+    db   2,seq_wait,15
+    db   1,seq_wait,15
+    db   0,seq_end
+Vol_CymbR:
+    db   1,seq_wait,7
+    db   2,seq_wait,7
+    db   3,seq_wait,7
+    db   4,seq_wait,7
+    db   5,seq_wait,7
+    db   6,seq_wait,7
+    db   7,seq_wait,7
+    db   8,seq_wait,7
+    db   9,seq_wait,7
+    db  10,seq_end
+
+Arp_Kick:
+    db  19,15,15,15,36,36,42,seq_end
+Arp_SoftKick:
+    db  18,18,43,seq_end
+Arp_Snare:
+    db  29,23,20,35,seq_end
+Arp_CHH:
+    db  43,seq_end
+Arp_Cymb:
+    db  26
+    ; fall through
+Arp_OHH:
+Arp_CymbR:
+    db  41,seq_end
+
+Noise_Kick:
+    db  1
+    ; fall through
+Noise_Snare:
+    db  1
+    ; fall through
+Noise_SoftKick:
+    db  1
+    ; fall through
+Noise_Cymb:
+    db  1
+    ; fall through
+Noise_CHH:
+Noise_OHH:
+    db  0,seq_end
+
+
+
 include "Audio/Waves.asm"
 include "Audio/Songs.asm"

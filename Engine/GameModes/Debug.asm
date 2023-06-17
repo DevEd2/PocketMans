@@ -96,7 +96,7 @@ DebugLoop:
     dw      Debug_InvalidMenu
     dw      GM_SpriteView
     dw      Debug_InvalidMenu
-    dw      Debug_InvalidMenu
+    dw      GM_SoundTest
 NUM_DEBUG_ITEMS = ((@ - .menuitems) / 2) - 1
 
 ; REMOVE ME DEBUG KEY FOR TESTING MANS SPRITES

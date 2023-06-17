@@ -281,9 +281,11 @@ Start:
 ; ================================================================
 
 include "Engine/GameModes/Debug.asm"
+include "Engine/GameModes/SpriteView.asm"
+include "Engine/GameModes/SoundTest.asm"
+
 include "Engine/GameModes/Overworld.asm"
 include "Engine/GameModes/Battle.asm"
-include "Engine/GameModes/SpriteView.asm"
 
 ; ================================================================
 ; Support routines
@@ -470,6 +472,28 @@ Hex2Dec8:
     pop     af
     ret
 
+; Prints hexadecimal number A at HL.
+; INPUT:  a = number to print
+;        hl = screen address
+PrintHex:
+	push    af
+	swap    a
+	call    :+
+	pop     af
+:	and     $f
+	cp      $a
+	jr      c,:+
+	add     7
+:	add     $10
+	push    af
+	ldh     a,[rSTAT]
+	and     2
+	jr      nz,@-4
+	pop     af
+    add     $80
+	ld      [hl+],a
+	ret
+
 include "Engine/WLE_Decode.asm"
 include "Engine/Math.asm"
 include "Engine/Pic.asm"
@@ -638,3 +662,10 @@ Font:   incbin  "GFX/Font.2bpp.wle"
 
 include "Data/MansNames.asm"
 include "Data/MansPics.asm"
+
+; ================================================================
+; Sound data
+; ================================================================
+
+include "Audio/DevSoundX.asm"
+

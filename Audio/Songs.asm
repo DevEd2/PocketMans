@@ -1,2 +1,4 @@
-
-include "Audio/Music/TestSong.asm"
+DSX_MusicPointers:
+    dw  Mus_Intro
+    
+include "Audio/Music/Intro.asm"
