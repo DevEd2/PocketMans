@@ -14,4 +14,11 @@ for file in *.png; do
     python3 ../../../Tools/wlenc.py $file.tmp $file.wle
     rm $file.tmp
 done
+cd ../../Manstamers
+echo "Converting manstamer sprites..."
+for file in *.png; do
+    rgbgfx $file -o $file.tmp
+    python3 ../../Tools/wlenc.py $file.tmp $file.wle
+    rm $file.tmp
+done
 cd ../../..
