@@ -114,7 +114,7 @@ MansDex_011: ; COWBOYMANS
     dstr    "ROOTIN TOOTIN"
     db      "This MANS hails from",$80
     db      "a strange, faraway",$80
-    db      "land known as Texas.",$81
+    db      "land known as TEXAS.",$81
     db      "It has a gun, and it",$80
     db      "isn't afraid to use",$80
     db      "it.",$ff
