@@ -1,23 +1,29 @@
 Script_IntroSpeech:
-    ; TODO: fade dogwood pic in
-    dbw 0,Script_IntroSpeech_Text1
-    ; TODO: fade out dogwood pic
-    ; TODO: fade in mans pic
-    dbw 0,Script_IntroSpeech_Text2
-    ; TODO: fade out mans pic
-    ; TODO: fade in player pic
-    dbw 0,Script_IntroSpeech_Text3
-    ; TODO: name entry
-    dbw 0,Script_IntroSpeech_Text4
-    ; TODO: fade out player pic
-    ; TODO: fade in dogwood pic
-    dbw 0,Script_IntroSpeech_Text5
-    ; TODO: fade out dogwood pic
-    ; TODO: fade in player pic
-    ; TODO: player shrinking animation
-    ; TODO: fade out
-    ; TODO: fade in to player's room
-    db  $ff
+    script_set_palette %00000000
+    script_show_pic Pic_Dogwood,0,0
+    script_fade_in_white
+    script_text Script_IntroSpeech_Text1
+    script_fade_out_white
+    
+    script_show_pic Pic_Mans001,0,0
+    script_fade_in_white
+    script_text Script_IntroSpeech_Text2
+    script_fade_out_white
+    
+    script_show_pic Pic_Mockum,0,0
+    script_fade_in_white
+    script_text Script_IntroSpeech_Text3
+    script_asm_call Script_IntroSpeech_NameEntry
+    script_text Script_IntroSpeech_Text4
+    script_fade_out_white
+    
+    script_show_pic Pic_Dogwood,0,0
+    script_fade_in_white
+    script_text Script_IntroSpeech_Text5
+    script_fade_out_white
+    script_show_pic Pic_Mockum,0,0
+    script_asm_call Script_IntroSpeech_ShrinkAnim
+    script_end
 
 Script_IntroSpeech_Text1:
 ;        ##################
@@ -25,7 +31,7 @@ Script_IntroSpeech_Text1:
     db  "name is PROFESSOR",$81
     db  "JAMES P. DOGWOOD,",$81
     db  "but you can call",$81
-    db  "me DOGWOOD.",$8f
+    db  "me DOGWOOD.",$ff
 ;        ##################
 
 Script_IntroSpeech_Text2:
@@ -45,7 +51,7 @@ Script_IntroSpeech_Text2:
     db  "it upon myself to",$81
     db  "study them. You",$81
     db  "might say I'm a",$81
-    db  "MANS expert!",$8f
+    db  "MANS expert!",$ff
 ;        ##################
 
 Script_IntroSpeech_Text3:
@@ -54,7 +60,7 @@ Script_IntroSpeech_Text3:
     db  "me, why don't you",$81
     db  "tell me a bit",$81
     db  "about yourself?",$82
-    db  "What's your name?",$8F
+    db  "What's your name?",$ff
 ;        ##################
 
 Script_IntroSpeech_Text4:
@@ -62,7 +68,7 @@ Script_IntroSpeech_Text4:
     db  "Ah, so you're",$80
     dbw $c0,$0000
     db  "!",$81
-    db  "Nice to meet you!",$8f
+    db  "Nice to meet you!",$ff
 ;        ##################
 
 Script_IntroSpeech_Text5:
@@ -77,5 +83,13 @@ Script_IntroSpeech_Text5:
     db  "good times and",$81
     db  "challenges along",$81
     db  "the way!",$82
-    db  "Go for it!",$8f
+    db  "Go for it!",$ff
 ;        ##################
+
+Script_IntroSpeech_NameEntry:
+    ld      hl,Player_Name
+    farjp   GM_TextInput
+
+Script_IntroSpeech_ShrinkAnim:
+    ; TODO
+    ret

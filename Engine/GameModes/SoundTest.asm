@@ -23,7 +23,7 @@ GM_SoundTest:
     ld      de,_VRAM8800
     call    DecodeWLE
     
-    call    DSX_Init
+    farcall DSX_Init
     ldfar   hl,str_SoundTest_Music
     ld      de,$9820
     call    PrintString

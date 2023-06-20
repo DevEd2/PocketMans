@@ -9,9 +9,6 @@ Debug_PicTest:  db
 section "Debug menu routines",rom0
 
 GM_Debug:
-    ; REMOVE ME
-    xor     a
-    ld      [Debug_PicTest],a
     ldh     a,[rLCDC]
     bit     7,a
     jr      z,:+
@@ -99,16 +96,13 @@ DebugLoop:
     dw      GM_SoundTest
 NUM_DEBUG_ITEMS = ((@ - .menuitems) / 2) - 1
 
-; REMOVE ME DEBUG KEY FOR TESTING MANS SPRITES
+; REMOVE ME DEBUG KEY FOR TESTING WINDOWS
 .checkselect
     bit     btnSelect,a
     jr      z,.drawcursor
-    ld      hl,Debug_PicTest
-    ld      a,[hl]
-    inc     [hl]
-    lb      bc,0,0
-    ld      de,$9000
-    call    DrawMansPic
+    lb      bc,8,8
+    ld      de,0
+    call    CreateWindow
     ; fall through
 
 .drawcursor

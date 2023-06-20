@@ -41,12 +41,13 @@ MansDex_003: ; MACHOMANS
 MansDex_004: ; ROCKMANS
 ;            ####################
     dstr    "ROCK SOLID"
-    db      "This MANS wears its",$80
-    db      "solid rock armor at",$80
-    db      "all times.",$81
-    db      "Unfortunately, it",$80
-    db      "can't move around",$80
-    db      "easily as a result.",$ff
+    db      "This MANS is known",$80
+    db      "to sneak up behind",$80
+    db      "monsters and throw",$80
+    db      "rocks at them.",$81
+    db      "Considered a Class",$80
+    db      "C Nuisance by the",$80
+    db      "MPA.",$ff
 
 MansDex_005: ; PAPERMANS
 ;            ####################

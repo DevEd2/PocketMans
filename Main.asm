@@ -62,6 +62,14 @@ macro ldfar
     rst     Bankswitch
     ld      \1,\2
 endm
+
+; Loads appropriate ROM bank for a routine and executes it.
+; Trashes B.
+macro farjp
+    ld      b,bank(\1)
+    rst     Bankswitch
+    jp      \1
+endm
     
 ; Loads appropriate ROM bank for a routine and executes it.
 ; Trashes B.
@@ -494,9 +502,38 @@ PrintHex:
 	ld      [hl+],a
 	ret
 
+; INPUT:  de = (x,y)
+; OUTPUT: de = VRAM address
+GetScreenCoordinates:
+    push    hl
+    push    bc
+    ld      a,d
+    and     $1f
+    ld      c,a
+    ld      b,0
+    ld      l,e
+    ld      h,0
+    add     hl,hl   ; x2
+    add     hl,hl   ; x4
+    ld      d,h
+    ld      e,l
+    add     hl,hl   ; x8
+    add     hl,hl   ; x16
+    add     hl,de   ; x20
+    add     hl,bc
+    ld      de,_SCRN0
+    add     hl,de
+    ld      d,h
+    ld      e,l
+    pop     bc
+    pop     hl
+    ret
+    
+
 include "Engine/WLE_Decode.asm"
 include "Engine/Math.asm"
 include "Engine/Pic.asm"
+include "Engine/Text.asm"
     
 ; ================================================================
 ; Interrupt handlers
