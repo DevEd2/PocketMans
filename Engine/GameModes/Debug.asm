@@ -191,7 +191,7 @@ Script_Test:
     script_play_song Mus_Intro
     script_resume_text
     ; script_play_sfx SFX_JINGLE1
-    
+    script_resume_text    
     script_end
 
 Script_Test_Text1:
@@ -209,7 +209,7 @@ Script_Test_Text1:
     db  TEXT_CONT
     dbw TEXT_HUGENUM,Debug_TestScript_HugeNum
     db  TEXT_CONT
-    dbw TEXT_BYTE,Debug_TestScript_Byte,
+    dbw TEXT_BYTE,Debug_TestScript_Byte
     db  TEXT_CONT
     dbw TEXT_WORD,Debug_TestScript_Word
     db  TEXT_CONT
@@ -235,18 +235,17 @@ Script_Test_Text2:
     db  "bees don't care",TEXT_NEXT
     db  "what humans",TEXT_NEXT
     db  "think is imposs-",TEXT_NEXT
-    db  "ible.",TEXT_CLEAR
-    db  "End of ramble.",TEXT_CONT
-    db  TEXT_CLOSE_WINDOW
+    db  "ible.",TEXT_NEXT,TEXT_NEXT,TEXT_CLEAR
+    db  "End of ramble.",TEXT_CLOSE_WINDOW
     ;    ################
 
 Script_Test_Text3:
     ;    ################
-    db  "Here's a window",TEXT_PAUSE,TEXT_CONT
+    db  "Here's a window",TEXT_PAUSE,TEXT_NEXT
     db  "and now let's",TEXT_CONT
     db  "put a pic in it.",TEXT_PAUSE,TEXT_CONT
     db  "And now, music",TEXT_PAUSE,TEXT_CONT
     db  "and a jingle.",TEXT_PAUSE,TEXT_CONT
-    db  TEXT_CLOSE_WINDOW
+    db  "End of test.",TEXT_CLOSE_WINDOW
 
 endc

@@ -387,6 +387,8 @@ Start:
     ld      a,%11100000
     ldh     [rOBP0],a
     
+    farcall DSX_Init
+    
     if DebugMode
         jp  GM_Debug
     endc
@@ -693,6 +695,10 @@ DoVBlank:
     ldh     [rP1],a
     
     rst     DoOAMDMA
+    
+    ; update sound
+    farcall DSX_Update
+    resbank
     
     pop     hl
     pop     de

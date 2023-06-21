@@ -149,7 +149,6 @@ SoundTestLoop:
     ld      hl,$9848
     call    PrintHex
     
-    farcall DSX_Update
     call    Debug_DrawCursor
     rst     WaitVBlank
     jp      SoundTestLoop

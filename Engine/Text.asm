@@ -16,19 +16,25 @@ TEXT_END            = $ff ; stop processing text without closing the text box
 
 section "Text engine RAM",wram0
 
-Script_Bank:    db
-Script_Pointer: dw
-Text_Bank:      db
-Text_Pointer:   dw
-Text_Pos:       dw
-Text_WindowX:   db
-Text_WindowY:   db
-Text_Width:     db
-Text_Height:    db
+Script_Bank:        db
+Script_Pointer:     dw
+Text_Bank:          db
+Text_Pointer:       dw
+Text_Pos:           dw
+Text_WindowX:       db
+Text_WindowY:       db
+Text_TempWindowX:   db
+Text_TempWindowY:   db
+Text_Width:         db
+Text_Height:        db
+Text_TempWidth:     db
+Text_TempHeight:    db
 ; used in case an error occurs during script/text processing
-Text_Byte:      db
-Text_Word:      dw
-Text_NextFlag:  db
+Text_Byte:          db
+Text_Word:          dw
+Text_NextFlag:      db
+
+Text_ScreenBuffer:  ds  32*32
 
 section "Text engine",rom0
 
@@ -210,6 +216,23 @@ RunTextBox:
 
 .cont
     pop     hl
+    call    .waitforbutton
+    call    Textbox_Scroll
+    jp      .parseloop
+
+.clear
+    pop     hl
+    push    hl
+    xor     a
+    ld      [Text_NextFlag],a
+    ; this is the lazy way out but hey, it works
+    lb      de,0,12
+    lb      bc,20,6
+    call    CreateWindow
+    pop     hl     
+    jp      .initcoords
+
+.waitforbutton
     push    de
     push    hl
     ; draw arrow
@@ -249,20 +272,7 @@ RunTextBox:
     ld      [hl],$80
     pop     hl
     pop     de
-    call    Textbox_Scroll
-    jp      .parseloop
-
-.clear
-    pop     hl
-    push    hl
-    xor     a
-    ld      [Text_NextFlag],a
-    ; this is the lazy way out but hey, it works
-    lb      de,0,12
-    lb      bc,20,6
-    call    CreateWindow
-    pop     hl     
-    jp      .initcoords
+    ret
 
     ; TODO
 .num
@@ -277,6 +287,7 @@ RunTextBox:
     jp      .parseloop
 
 .closewindow
+    call    .waitforbutton
     pop     hl
     ; TODO
     jp      .end
@@ -293,10 +304,22 @@ RunTextBox:
     ld      [Text_Pos],a
     ld      a,d
     ld      [Text_Pos+1],a
+    ld      a,[Text_WindowX]
+    ld      [Text_TempWindowX],a
+    ld      a,[Text_WindowY]
+    ld      [Text_TempWindowY],a
+    ld      a,[Text_Width]
+    ld      [Text_TempWidth],a
+    ld      a,[Text_Height]
+    ld      [Text_TempHeight],a
     pop     hl
     pop     de
     pop     bc
     pop     af
+    ld      hl,Script_Pointer
+    ld      a,[hl+]
+    ld      h,[hl]
+    ld      l,a
     jp      RunScript.parseloop
 
 ; ========
@@ -347,6 +370,22 @@ Textbox_Scroll:
 
 ; INPUT: b = script bank, hl = script pointer
 RunScript:
+    push    hl
+    push    bc
+    ; save screen buffer
+    ld      hl,_SCRN0
+    ld      de,Text_ScreenBuffer
+    ld      bc,_SCRN1-_SCRN0
+:   WaitForVRAM
+    ld      a,[hl+]
+    ld      [de],a
+    inc     de
+    dec     bc
+    ld      a,b
+    or      c
+    jr      nz,:-
+    pop     bc
+    pop     hl
     ld      a,b
     ld      [Script_Bank],a
 .parseloop
@@ -369,7 +408,18 @@ RunScript:
     jr      nz,.error
     jp      hl
 .done
-    ; TODO: Cleanup
+    ; restore screen buffer
+    ld      hl,Text_ScreenBuffer
+    ld      de,_SCRN0
+    ld      bc,_SCRN1-_SCRN0
+:   WaitForVRAM
+    ld      a,[hl+]
+    ld      [de],a
+    inc     de
+    dec     bc
+    ld      a,b
+    or      c
+    jr      nz,:-
     ret
 
 .error
@@ -430,8 +480,10 @@ ScriptCommands:
     ld      a,[hl+]
     ld      d,a
     pop     af
+    push    hl
     call    DrawMansPic
-    jr      RunScript.parseloop
+    pop     hl
+    jp      RunScript.parseloop
 
 .window
     pop     hl
@@ -446,6 +498,26 @@ ScriptCommands:
     call    CreateWindow
     jp      RunScript.parseloop
 
+.song
+    pop     hl
+    ld      a,[hl+]
+    ld      b,a
+    rst     Bankswitch
+    push    hl
+    push    hl
+    call    DSX_Init
+    resbank
+    pop     hl
+    ld      a,[hl+]
+    ld      h,[hl]
+    ld      l,a
+    farcall DSX_PlaySong
+    resbank
+    pop     hl
+    inc     hl
+    inc     hl
+    jp      RunScript.parseloop
+
 .jz
 .jeq
 .jgt
@@ -456,8 +528,6 @@ ScriptCommands:
     inc     hl
     jp      RunScript.parseloop
 .prompt
-.song
-.sfx
 .actormove
 .actorwalk
 .call
@@ -467,6 +537,7 @@ ScriptCommands:
     inc     hl
     jp      RunScript.parseloop
 .waitframes
+.sfx
     pop     hl
     inc     hl
     jp      RunScript.parseloop
@@ -477,6 +548,18 @@ ScriptCommands:
     push    bc
     push    de
     push    hl
+    ld      a,l
+    ld      [Script_Pointer],a
+    ld      a,h
+    ld      [Script_Pointer+1],a
+    ld      a,[Text_TempWindowX]
+    ld      [Text_WindowX],a
+    ld      a,[Text_TempWindowY]
+    ld      [Text_WindowY],a
+    ld      a,[Text_TempWidth]
+    ld      [Text_Width],a
+    ld      a,[Text_TempHeight]
+    ld      [Text_Height],a
     ld      a,[Text_Bank]
     ld      b,a
     rst     Bankswitch
@@ -488,9 +571,7 @@ ScriptCommands:
     ld      a,[hl+]
     ld      h,[hl]
     ld      l,a
-    call    RunTextBox.parseloop
-    jp      RunScript.parseloop
-    
+    jp      RunTextBox.parseloop
     
 section "Text engine error messages",romx
 Text_Err_UnkTextCommand:
