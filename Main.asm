@@ -52,6 +52,113 @@ _Down           equ 1 << btnDown
 
 ; --------
 
+; Script command definitions
+macro script_text
+    db  $0
+    db  bank(\1)
+    dw  \1
+endm
+
+; script_disp_pic id,x,y,flags,vram
+macro script_disp_pic
+    db  $1
+    db  \1
+    db  (\3 & $0f) << 4 | (\2 & $0f) 
+    db  \4
+    dw  \5
+endm
+
+; script_create_window x,y,w,h
+macro script_create_window
+    db  $2
+    db  \1
+    db  \2
+    db  \3
+    db  \4
+endm
+
+; script_prompt varaiable,type
+macro script_prompt
+    db  $3
+    dw  \1
+    db  \2
+endm
+
+; script_jump_if_zero var,script
+macro script_jump_if_zero
+    db  $4
+    dw  \1
+    dw  \2
+endm
+
+; script_jump_if_equal num,var,script
+macro script_jump_if_equal
+    db  $5
+    db  \1
+    dw  \2
+    dw  \3
+endm
+
+; script_jump_if_greater num,var,script
+macro script_jump_if_greater
+    db  $6
+    db  \1
+    dw  \2
+    dw  \3
+endm
+
+; script_play_song ptr
+macro script_play_song
+    db  $7
+    db  bank(\1)
+    dw  \1
+    endm
+
+; script_play_sfx id
+macro script_play_sfx
+    db  $8
+    db  bank(\1)
+    dw  \1
+    endm
+
+; script_actor_move num,x,y
+macro script_actor_move
+    db  $9
+    db  \1
+    db  \2
+    db  \3
+endm
+
+; script_actor_walk num,dir,dist
+macro script_actor_walk
+    db  $a
+    db  \1
+    db  ((\2 & 3) << 6) | (\3 & 64)
+endm
+
+; script_wait_frames num
+macro script_wait_frames
+    db  $b
+    db  \1
+endm
+
+macro script_resume_text
+    db  $c
+endm
+    
+; script_asm_call addr
+macro script_asm_call
+    db  $f
+    db  bank(\1)
+    dw  \1
+endm
+
+macro script_end
+    db  $ff
+endm
+
+; --------
+
 macro dstr
     db  \1
     db  0
@@ -515,11 +622,9 @@ GetScreenCoordinates:
     ld      h,0
     add     hl,hl   ; x2
     add     hl,hl   ; x4
-    ld      d,h
-    ld      e,l
     add     hl,hl   ; x8
     add     hl,hl   ; x16
-    add     hl,de   ; x20
+    add     hl,hl   ; x32
     add     hl,bc
     ld      de,_SCRN0
     add     hl,de
@@ -539,6 +644,7 @@ include "Engine/Text.asm"
 ; Interrupt handlers
 ; ================================================================
 
+section fragment "Program code",rom0
 DoVBlank:
     push    af
     push    bc

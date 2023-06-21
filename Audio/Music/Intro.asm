@@ -113,8 +113,8 @@ Mus_Intro_CH1:
     note    F_,5,1
     release 1
     note    C#,5,1
-    release 1
     sound_set_speed 5,5
+    release 1
     sound_call .block1
     sound_volume 8
     sound_call .block1
