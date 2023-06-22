@@ -105,6 +105,28 @@ DebugLoop:
 NUM_DEBUG_ITEMS = ((@ - .menuitems) / 2) - 1
 
 .runtestscript
+    ld      a,56
+    ld      [Debug_TestScript_Num],a
+    ld      a,low(42069)
+    ld      [Debug_TestScript_BigNum],a
+    ld      a,high(42069)
+    ld      [Debug_TestScript_BigNum+1],a
+    ; hugenum: 1,234,567,890
+    ld      a,$d2
+    ld      [Debug_TestScript_HugeNum],a
+    ld      a,$02
+    ld      [Debug_TestScript_HugeNum+1],a
+    ld      a,$96
+    ld      [Debug_TestScript_HugeNum+2],a
+    ld      a,$49
+    ld      [Debug_TestScript_HugeNum+3],a
+    ld      a,$ab
+    ld      [Debug_TestScript_Byte],a
+    ld      a,low($cdef)
+    ld      [Debug_TestScript_Word],a
+    ld      a,high($cdef)
+    ld      [Debug_TestScript_Word+1],a
+    
     ldfar   hl,Script_Test
     call    RunScript
     ; fall through
@@ -119,7 +141,7 @@ NUM_DEBUG_ITEMS = ((@ - .menuitems) / 2) - 1
     call    Debug_DrawCursor
 
     halt
-    jr      DebugLoop
+    jp      DebugLoop
     
 Debug_DrawCursor:
     ; draw cursor

@@ -67,8 +67,8 @@ CreateWindow:
     ; default case: middle row
 .middlerow
     ld      hl,TextBoxTileDefinitions.middle
-    WaitForVRAM
     call    .getcolumn
+    WaitForVRAM
     ld      a,[hl]
     ld      [de],a
     inc     de
@@ -258,10 +258,12 @@ RunTextBox:
     bit     5,a
     jr      z,.blank
 .arrow
+    WaitForVRAM
     ld      a,$f3
     ld      [hl],a
     jr      :+
 .blank
+    WaitForVRAM
     ld      a,$80
     ld      [hl],a
 :   rst     WaitVBlank

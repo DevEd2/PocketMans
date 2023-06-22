@@ -695,11 +695,9 @@ DoVBlank:
     ldh     [rP1],a
     
     rst     DoOAMDMA
-    
-    ; update sound
     farcall DSX_Update
     resbank
-    
+    WaitForVRAM
     pop     hl
     pop     de
     pop     bc
@@ -712,7 +710,7 @@ DoSTAT:
     push    de
     push    hl
     ld      a,1
-    ldh     [sys_STATFlag],a
+    ldh     [sys_STATFlag],a   
     pop     hl
     pop     de
     pop     bc
