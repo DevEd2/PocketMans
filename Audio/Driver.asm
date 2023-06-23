@@ -40,8 +40,8 @@ B_ = 12
 
 ; sound command definitions
 macro note
-    assert (\1 >= 0) & (\1 < $10)
-    assert (\2 >= 0) & (\2 < $10)
+    assert (\1 >= 0) & (\1 <= $10)
+    assert (\2 >= 0) & (\2 <= $10)
     db  (\1 << 4) | (\2 - 1)
 endm
 
@@ -133,7 +133,7 @@ Sound_CH\1LoopCount:    db
 Sound_CH\1Tick:         db
 Sound_CH\1Note:         db
 Sound_CH\1Octave:       db
-Sound_CH\1Envelope:     dw
+Sound_CH\1Envelope:     db
 if (((\1-1)%4 == 0) | ((\1-1)%4 == 1))
 Sound_CH\1Pulse:        db
 endc
@@ -541,20 +541,13 @@ Sound_UpdateMusic:
     and     a
     jp      z,Sound_UpdateSFX
     
-    ld      a,[Sound_MusicSubtick]
-    and     a
-    jr      z,:+
-    ld      b,a
-    ld      a,[Sound_MusicTempo+1]
-    add     b
-    ld      [Sound_MusicSubtick],a
-    ret     nc
-:   ld      a,[Sound_MusicTick]
+    ; TODO: Subticks
+ 
+    ld      a,[Sound_MusicTick]
     dec     a
     ld      [Sound_MusicTick],a
     ret     nz
     ld      a,[Sound_MusicTempo]
-    dec     a
     ld      [Sound_MusicTick],a
     call    Sound_UpdateCH1
     call    Sound_UpdateCH2

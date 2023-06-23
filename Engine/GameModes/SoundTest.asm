@@ -125,9 +125,11 @@ SoundTestLoop:
 .playmusic
     call    Sound_Init
     ld      a,[Debug_MusicID]
+    push    de
     ld      e,a
     ld      d,0
     call    Sound_PlaySong
+    pop     de
 
     jr      .checkb
 .playsfx

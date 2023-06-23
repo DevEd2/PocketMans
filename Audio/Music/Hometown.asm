@@ -26,7 +26,7 @@
 section "Music sequence - Hometown",romx
 
 Mus_Hometown:
-    db  9,$00   ; tempo
+    db  8,$00   ; tempo
     dw  Mus_Hometown_CH1
     dw  Mus_Hometown_CH2
     dw  Mus_Hometown_CH3
