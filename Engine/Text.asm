@@ -504,17 +504,17 @@ ScriptCommands:
     pop     hl
     ld      a,[hl+]
     ld      b,a
-    rst     Bankswitch
+;    rst     Bankswitch
     push    hl
     push    hl
-    call    DSX_Init
-    resbank
+;    call    DSX_Init
+;    resbank
     pop     hl
     ld      a,[hl+]
     ld      h,[hl]
     ld      l,a
-    farcall DSX_PlaySong
-    resbank
+;    farcall DSX_PlaySong
+;    resbank
     pop     hl
     inc     hl
     inc     hl

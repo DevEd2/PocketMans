@@ -210,7 +210,7 @@ Script_Test:
     script_resume_text
     script_disp_pic 1,1,1,0,$9000
     script_resume_text
-    script_play_song Mus_Intro
+;    script_play_song Mus_Intro
     script_resume_text
     ; script_play_sfx SFX_JINGLE1
     script_resume_text    

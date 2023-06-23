@@ -22,8 +22,9 @@ GM_SoundTest:
 :   ld      hl,Font
     ld      de,_VRAM8800
     call    DecodeWLE
+
+    call    Sound_Init
     
-    farcall DSX_Init
     ldfar   hl,str_SoundTest_Music
     ld      de,$9820
     call    PrintString
@@ -122,24 +123,19 @@ SoundTestLoop:
     and     a
     jr      nz,.playsfx
 .playmusic
-    farcall DSX_Init
+    call    Sound_Init
     ld      a,[Debug_MusicID]
-    ldfar   hl,DSX_MusicPointers
-    add     l
-    ld      l,a
-    jr      nc,:+
-    inc     h
-:   ld      a,[hl+]
-    ld      h,[hl]
-    ld      l,a
-    call    DSX_PlaySong
+    ld      e,a
+    ld      d,0
+    call    Sound_PlaySong
+
     jr      .checkb
 .playsfx
     ; TODO
 .checkb
     bit     btnB,e
     jr      z,.continue
-    farcall    DSX_StopMusic
+    call    Sound_Init
     jp      GM_Debug
 .continue    
     ld      a,[Debug_MusicID]

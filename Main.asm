@@ -1,5 +1,5 @@
 ; ================================================================
-; PROJECT: POCKET MANS
+; POCKET MANS
 ; Main source code file
 ; (C) 2023 DevEd
 ; 
@@ -387,7 +387,7 @@ Start:
     ld      a,%11100000
     ldh     [rOBP0],a
     
-    farcall DSX_Init
+    farcall Sound_Init
     
     if DebugMode
         jp  GM_Debug
@@ -695,8 +695,11 @@ DoVBlank:
     ldh     [rP1],a
     
     rst     DoOAMDMA
-    farcall DSX_Update
-    resbank
+    ld      a,[sys_CurrentBank]
+    push    af
+    call    Sound_Update
+    pop     bc
+    rst     Bankswitch
     WaitForVRAM
     pop     hl
     pop     de
@@ -814,5 +817,5 @@ include "Data/MansPics.asm"
 ; Sound data
 ; ================================================================
 
-include "Audio/DevSoundX.asm"
+include "Audio/Driver.asm"
 
