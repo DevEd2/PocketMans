@@ -573,11 +573,11 @@ Sound_CalculateFrequency:
 
 Sound_FrequencyTable:   ; note frequencies for notes C-2 to B-2 inclusive
 ;        C-   C#   D-   D#   E-   F-   F#   G-   G#   A-   A#   B-
-    dw  $02c,$09d,$107,$16b,$1c9,$223,$277,$2c7,$312,$358,$39b,$3da
+    dw  $02c,$09d,$107,$16b,$1ca,$223,$277,$2c7,$312,$358,$39b,$3da
 
 Sound_OctaveDeltaTable: ; frequency differences between note n2 and n3
 ;        C-   C#   D-   D#   E-   F-   F#   G-   G#   A-   A#   B-
-    dw  $3e9,$3b1,$37c,$34a,$31c,$2ee,$2c4,$29c,$277,$254,$233,$213
+    dw  $3ea,$3b1,$37c,$34a,$31b,$2ee,$2c4,$29c,$277,$254,$232,$213
 
 Sound_Waves:
     db  $ff,$ff,$ff,$ff,$ff,$ff,$ff,$ff,$00,$00,$00,$00,$00,$00,$00,$00 ; square
