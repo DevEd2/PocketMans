@@ -40,6 +40,8 @@ B_ = 12
 
 ; sound command definitions
 macro note
+    assert (\1 >= 0) & (\1 < $10)
+    assert (\2 >= 0) & (\2 < $10)
     db  (\1 << 4) | (\2 - 1)
 endm
 
@@ -62,9 +64,13 @@ macro wave
     db  \1
     endm
 
+; vibrato delay,speed,depth
 macro vibrato
     db  $e2
-    ; TODO
+    db  \1
+    assert (\2 >= 0) & (\2 < $10)
+    assert (\3 >= 0) & (\3 < $10)
+    db  (\2 << 4) | \3
 endm
 
 macro sound_jump
@@ -92,6 +98,7 @@ macro sound_end
 endm
     
 macro octave
+    assert (\1 >= 2) & (\1 < 8)
     db  $f0 | (\1 - 2)
 endm
 
@@ -120,26 +127,27 @@ Sound_SFXTick:      db
 Sound_SFXSubtick:   db
 
 macro sound_channel_struct
-Sound_CH\1Pointer:       dw
-Sound_CH\1RetPointer:    dw
-Sound_CH\1LoopCount:     db
-Sound_CH\1Tick:          db
-Sound_CH\1Note:          db
-Sound_CH\1Octave:        db
-Sound_CH\1Envelope:      dw
+Sound_CH\1Pointer:      dw
+Sound_CH\1RetPointer:   dw
+Sound_CH\1LoopCount:    db
+Sound_CH\1Tick:         db
+Sound_CH\1Note:         db
+Sound_CH\1Octave:       db
+Sound_CH\1Envelope:     dw
 if (((\1-1)%4 == 0) | ((\1-1)%4 == 1))
-Sound_CH\1Pulse:         db
+Sound_CH\1Pulse:        db
 endc
 if (\1-1)%4 == 2
-Sound_CH\1Wave:          db
+Sound_CH\1Wave:         db
 endc
 if (\1-1)%4 != 3
-Sound_CH\1PitchOffset:   db
-Sound_CH\1VibDepth:      db
-Sound_CH\1VibSpeed:      db
-Sound_CH\1VibDelay:      db
-Sound_CH\1VibTick:       db ; high byte = phase
-Sound_CH\1VibOffset:     dw
+Sound_CH\1PitchOffset:  db
+Sound_CH\1VibDepth:     db
+Sound_CH\1VibSpeed:     db
+Sound_CH\1VibDelay:     db
+Sound_CH\1VibDelay2:    db
+Sound_CH\1VibTick:      db ; high byte = phase
+Sound_CH\1VibOffset:    dw
 endc
 endm
 
@@ -178,7 +186,11 @@ macro sound_update_channel
 Sound_UpdateCH\1:
     ld      a,[Sound_Flags]
     bit     \1,a
+    if (\1-1)%4 != 3
+    jr      z,.dopitch
+    else
     ret     z
+    endc
     ld      a,[Sound_CH\1Tick]
     dec     a
     ld      [Sound_CH\1Tick],a
@@ -187,6 +199,27 @@ Sound_UpdateCH\1:
     ld      a,[hl+]
     ld      h,[hl]
     ld      l,a
+ if (\1-1)%4 != 3
+    jr      .getbyte
+.dopitch
+    ld      a,[Sound_CH\1Octave]
+    ld      b,a
+    ld      a,[Sound_CH\1Note]
+    call    Sound_CalculateFrequency
+    push    hl
+    ld      hl,Sound_CH\1VibOffset
+    ld      a,[hl+]
+    ld      h,[hl]
+    ld      l,a
+    pop     de
+    add     hl,de
+    ld      a,l
+    ldh     [rNR\13],a
+    ld      a,h
+    ldh     [rNR\14],a
+    ret
+ endc 
+    
 .getbyte
     ld      a,[hl+]
     cp      $e0
@@ -205,10 +238,6 @@ if (\1-1)%4 != 3
     and     $0f
     inc     a
     ld      [Sound_CH\1Tick],a
-    ld      a,[Sound_CH\1Octave]
-    ld      b,a
-    ld      a,d
-    call    Sound_CalculateFrequency
     ld      a,[Sound_CH\1Envelope]
     ldh     [rNR\12],a
  if ((\1-1)%4 == 0) | ((\1-1)%4 == 1)
@@ -219,6 +248,20 @@ if (\1-1)%4 != 3
     and     %11000000
     ldh     [rNR\11],a
  endc
+    ld      a,[Sound_CH\1VibDelay2]
+    ld      [Sound_CH\1VibDelay],a
+    xor     a
+    ld      [Sound_CH\1VibTick],a
+    ld      [Sound_CH\1VibOffset],a
+    ld      [Sound_CH\1VibOffset+1],a
+ if (\1-1)%4 != 3
+    call    .dopitch
+ if (\1-1)%4 != 2
+    or      %10000000
+    ldh     [rNR\14],a
+ endc
+    
+ endc
     jr      :+
 .rest
     xor     a
@@ -227,20 +270,7 @@ if (\1-1)%4 != 3
     and     $0f
     inc     a
     ld      [Sound_CH\1Tick],a
-:   push    hl
-    ld      hl,Sound_CH\1VibOffset
-    ld      a,[hl+]
-    ld      h,[hl]
-    ld      l,a
-    pop     de
-    add     hl,de
-    ld      a,l
-    ldh     [rNR\13],a
-    ld      a,h
- if (\1-1)%4 != 2
-    or      %10000000
- endc
-    ldh     [rNR\14],a
+:   
 else
     ; TODO: CH4 processing
 endc
@@ -373,7 +403,16 @@ endc
 .vibrato
     pop     hl
     if (\1-1)%4 != 3
-    ; TODO
+    ld      a,[hl+]
+    ld      [Sound_CH\1VibDelay],a
+    ld      [Sound_CH\1VibDelay2],a
+    ld      a,[hl]
+    and     $f
+    ld      [Sound_CH\1VibDepth],a
+    ld      a,[hl+]
+    and     $f0
+    swap    a
+    ld      [Sound_CH\1VibSpeed],a
     endc
     jp      .getbyte
 
@@ -442,12 +481,61 @@ endm
 ;    sound_update_channel 7
 ;    sound_update_channel 8
 
+macro sound_update_vibrato
+Sound_VibratoCH\1:
+    ld      a,[Sound_CH\1VibDelay]
+    and     a
+    jr      z,:+
+    dec     a
+    ld      [Sound_CH\1VibDelay],a
+    ret
+:   ld      a,[Sound_CH\1VibTick]
+    and     $7f
+    inc     a
+    ld      b,a
+    ld      a,[Sound_CH\1VibSpeed]
+    cp      b
+    jr      z,:+
+    ld      a,[Sound_CH\1VibTick]
+    cpl
+    and     $80
+    or      b
+    ld      [Sound_CH\1VibTick],a
+    jr      z,.off
+.on
+    ld      a,[Sound_CH\1VibDepth]
+    jr      :++
+.off
+    xor     a
+    jr      :++
+:   ld      a,[Sound_CH\1VibSpeed]
+    ld      [Sound_CH\1VibDelay],a
+    xor     a
+    ld      [Sound_CH\1VibTick],a
+:   ld      [Sound_CH\1VibOffset],a
+    xor     a
+    ld      [Sound_CH\1VibOffset+1],a
+    jp      Sound_UpdateCH\1.dopitch
+    
+endm
+
+    sound_update_vibrato 1
+    sound_update_vibrato 2
+    sound_update_vibrato 3
+;    sound_update_vibrato 5
+;    sound_update_vibrato 6
+;    sound_update_vibrato 7
+
 Sound_Update:
     ld      a,[Sound_MusicBank]
     ld      b,a
     rst     Bankswitch
     
     ; TODO: vibrato
+    call    Sound_VibratoCH1
+    call    Sound_VibratoCH2
+    call    Sound_VibratoCH3
+    
 Sound_UpdateMusic:
     ld      a,[Sound_MusicPlaying]
     and     a

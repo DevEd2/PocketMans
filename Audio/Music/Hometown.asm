@@ -36,6 +36,7 @@ Mus_Hometown:
 Mus_Hometown_CH1:
     octave 5
     pulse 2
+    vibrato 13,4,3
 .loop
     envelope $a3
     note D_,2
@@ -174,6 +175,7 @@ Mus_Hometown_CH2:
     octave 5
     pulse 2
     envelope $b4
+    vibrato 16,5,2
 .loop
     ; part 1
     note G_,6
@@ -279,6 +281,7 @@ Mus_Hometown_CH3:
     wave 3
     envelope $20
     octave 5
+    vibrato 12,6,2
 .loop
     sound_call .block1
     octave_down
