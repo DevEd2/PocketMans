@@ -38,6 +38,16 @@ A_ = 10
 A# = 11
 B_ = 12
 
+; flag constants
+MUSIC_CH1   = 0
+MUSIC_CH2   = 1
+MUSIC_CH3   = 2
+MUSIC_CH4   = 3
+SFX_CH1     = 4
+SFX_CH2     = 5
+SFX_CH3     = 6
+SFX_CH4     = 7
+
 ; sound command definitions
 macro note
     assert (\1 >= 0) & (\1 <= $10)
@@ -149,6 +159,11 @@ Sound_CH\1VibDelay2:    db
 Sound_CH\1VibTick:      db ; high byte = phase
 Sound_CH\1VibOffset:    dw
 endc
+Sound_NR\10:            db
+Sound_NR\11:            db
+Sound_NR\12:            db
+Sound_NR\13:            db
+Sound_NR\14:            db
 endm
 
     sound_channel_struct 1
@@ -185,7 +200,7 @@ Sound_Init:
 macro sound_update_channel
 Sound_UpdateCH\1:
     ld      a,[Sound_Flags]
-    bit     \1,a
+    bit     \1-1,a
     if (\1-1)%4 != 3
     jr      z,.dopitch
     else
@@ -214,9 +229,9 @@ Sound_UpdateCH\1:
     pop     de
     add     hl,de
     ld      a,l
-    ldh     [rNR\13],a
+    ld      [Sound_NR\13],a
     ld      a,h
-    ldh     [rNR\14],a
+    ld      [Sound_NR\14],a
     ret
  endc 
     
@@ -239,33 +254,33 @@ if (\1-1)%4 != 3
     inc     a
     ld      [Sound_CH\1Tick],a
     ld      a,[Sound_CH\1Envelope]
-    ldh     [rNR\12],a
+    ld      [Sound_NR\12],a
  if ((\1-1)%4 == 0) | ((\1-1)%4 == 1)
     ld      a,[Sound_CH\1Pulse]
     swap    a
     rla
     rla
     and     %11000000
-    ldh     [rNR\11],a
+    ld      [Sound_NR\11],a
  endc
     ld      a,[Sound_CH\1VibDelay2]
     ld      [Sound_CH\1VibDelay],a
     xor     a
     ld      [Sound_CH\1VibTick],a
     ld      [Sound_CH\1VibOffset],a
+ if (\1-1)%4 != 2
+    or      %10000000
+    ld      [Sound_NR\14],a
+ endc
     ld      [Sound_CH\1VibOffset+1],a
  if (\1-1)%4 != 3
     call    .dopitch
- if (\1-1)%4 != 2
-    or      %10000000
-    ldh     [rNR\14],a
- endc
     
  endc
     jr      :+
 .rest
     xor     a
-    ldh     [rNR\12],a
+    ld      [Sound_NR\12],a
     ld      a,e
     and     $0f
     inc     a
@@ -467,7 +482,7 @@ endc
 .end
     pop     hl
     ld      hl,Sound_Flags
-    res     \1,a
+    res     \1-1,a
     ret
 
 endm
@@ -476,10 +491,10 @@ endm
     sound_update_channel 2
     sound_update_channel 3
     sound_update_channel 4
-;    sound_update_channel 5
-;    sound_update_channel 6
-;    sound_update_channel 7
-;    sound_update_channel 8
+    sound_update_channel 5
+    sound_update_channel 6
+    sound_update_channel 7
+    sound_update_channel 8
 
 macro sound_update_vibrato
 Sound_VibratoCH\1:
@@ -522,9 +537,9 @@ endm
     sound_update_vibrato 1
     sound_update_vibrato 2
     sound_update_vibrato 3
-;    sound_update_vibrato 5
-;    sound_update_vibrato 6
-;    sound_update_vibrato 7
+    sound_update_vibrato 5
+    sound_update_vibrato 6
+    sound_update_vibrato 7
 
 Sound_Update:
     ld      a,[Sound_MusicBank]
@@ -562,7 +577,129 @@ Sound_UpdateSFX:
     ; fall through
 
 Sound_FinishedUpdating:
+
+Sound_UpdateRegisters:
+    ld      b,b
+.check1 
+    ld      a,[Sound_Flags]
+    bit     SFX_CH1,a
+    jr      nz,.sfx1
+.music1
+    ld      a,[Sound_NR11]
+    ldh     [rNR11],a
+    ld      a,[Sound_NR13]
+    ldh     [rNR13],a
+    ld      a,[Sound_NR14]
+    bit     7,a
+    jr      z,:+
+    push    af
+    ld      a,[Sound_NR12]
+    ldh     [rNR12],a
+    pop     af
+:   ldh     [rNR14],a
+    res     7,a
+    ld      [Sound_NR14],a
+    jr      .check2
+.sfx1
+    ld      a,[Sound_NR51]
+    ldh     [rNR11],a
+    ld      a,[Sound_NR53]
+    ldh     [rNR13],a
+    ld      a,[Sound_NR54]
+    bit     7,a
+    jr      z,:+
+    push    af
+    ld      a,[Sound_NR52]
+    ldh     [rNR12],a
+    pop     af
+:   ldh     [rNR14],a
+    res     7,a
+    ld      [Sound_NR14],a
+.check2
+    ld      a,[Sound_Flags]
+    bit     SFX_CH2,a
+    jr      nz,.sfx2
+.music2
+    ld      a,[Sound_NR21]
+    ldh     [rNR21],a
+    ld      a,[Sound_NR23]
+    ldh     [rNR23],a
+    ld      a,[Sound_NR24]
+    bit     7,a
+    jr      z,:+
+    push    af
+    ld      a,[Sound_NR22]
+    ldh     [rNR22],a
+    pop     af
+:   ldh     [rNR24],a
+    res     7,a
+    ld      [Sound_NR24],a
+    jr      .check3
+.sfx2
+    ld      a,[Sound_NR61]
+    ldh     [rNR21],a
+    ld      a,[Sound_NR63]
+    ldh     [rNR23],a
+    ld      a,[Sound_NR64]
+    bit     7,a
+    jr      z,:+
+    push    af
+    ld      a,[Sound_NR62]
+    ldh     [rNR22],a
+    pop     af
+:   ldh     [rNR24],a
+.check3
+    ld      a,[Sound_Flags]
+    bit     SFX_CH3,a
+    jr      nz,.sfx3
+.music3
+    ld      a,[Sound_NR32]
+    ldh     [rNR32],a
+    ld      a,[Sound_NR33]
+    ldh     [rNR33],a
+    ld      a,[Sound_NR34]
+    ldh     [rNR34],a
+    jr      .check4
+.sfx3
+    ld      a,[Sound_NR72]
+    ldh     [rNR32],a
+    ld      a,[Sound_NR73]
+    ldh     [rNR33],a
+    ld      a,[Sound_NR74]
+    ldh     [rNR34],a
+.check4
+    ld      a,[Sound_Flags]
+    bit     SFX_CH4,a
+    jr      nz,.sfx4
+.music4
+    ld      a,[Sound_NR43]
+    ldh     [rNR43],a
+    ld      a,[Sound_NR44]
+    bit     7,a
+    jr      z,:+
+    push    af
+    ld      a,[Sound_NR42]
+    ldh     [rNR42],a
+    pop     af
+:   ldh     [rNR44],a
+    res     7,a
+    ld      [Sound_NR44],a
     ret
+.sfx4
+    ld      a,[Sound_NR83]
+    ldh     [rNR43],a
+    ld      a,[Sound_NR84]
+    bit     7,a
+    jr      z,:+
+    push    af
+    ld      a,[Sound_NR82]
+    ldh     [rNR42],a
+    pop     af
+:   ldh     [rNR44],a
+    res     7,a
+    ld      [Sound_NR44],a
+    ret
+
 
 ; Input: song ID in DE
 Sound_PlaySong:
@@ -616,6 +753,7 @@ Sound_PlaySFX:
     ret
 
 ; INPUT: A = note, B = octave
+; OUTPUT: note frequency in HL
 Sound_CalculateFrequency:
     dec     a
     push    af
