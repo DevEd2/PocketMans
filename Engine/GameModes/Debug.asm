@@ -210,10 +210,16 @@ Script_Test:
     script_resume_text
     script_disp_pic 1,1,1,0,$9000
     script_resume_text
-;    script_play_song Mus_Intro
+    script_play_song MUSID_HOMETOWN
     script_resume_text
-    ; script_play_sfx SFX_JINGLE1
-    script_resume_text    
+    script_play_sfx SFXID_SELECT ; TODO: Replace with different sound
+    script_play_sfx SFXID_SELECT ; TODO: Replace with different sound
+    script_play_sfx SFXID_SELECT ; TODO: Replace with different sound
+    script_play_sfx SFXID_SELECT ; TODO: Replace with different sound
+    script_play_sfx SFXID_SELECT ; TODO: Replace with different sound
+    script_resume_text
+    script_stop_music
+    script_resume_text
     script_end
 
 Script_Test_Text1:
@@ -267,7 +273,9 @@ Script_Test_Text3:
     db  "and now let's",TEXT_CONT
     db  "put a pic in it.",TEXT_PAUSE,TEXT_CONT
     db  "And now, music",TEXT_PAUSE,TEXT_CONT
-    db  "and a jingle.",TEXT_PAUSE,TEXT_CONT
+    db  "and some SFX.",TEXT_PAUSE,TEXT_CONT
+    db  "And now let's",TEXT_CONT
+    db  "stop the music.",TEXT_PAUSE,TEXT_CONT
     db  "End of test.",TEXT_CLOSE_WINDOW
 
 endc

@@ -30,7 +30,7 @@ Mus_Battle1:
     dw  Mus_Battle1_CH1
     dw  Mus_Battle1_CH2
     dw  Mus_Battle1_CH3
-    dw  Mus_Dummy
+    dw  Sound_DummySeq
 
 Mus_Battle1_CH1:
     envelope $a3

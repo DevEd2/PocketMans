@@ -23,45 +23,11 @@
 ; SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ; ================================================================
 
+SFXID_SELECT    = 0
+
 section "SFX pointer table",rom0
 
 Sound_SFXPointers:
-    dwfar SFX_Blank
-    dwfar SFX_Test
+    dwfar SFX_Select
 
-section "Test SFX",romx
-SFX_Blank:
-    db  4,0
-    dw  SFX_Blank_CH5
-    dw  SFX_Blank_CH6
-    dw  SFX_Blank_CH7
-    dw  SFX_Blank_CH8
-
-SFX_Blank_CH5:
-SFX_Blank_CH6:
-SFX_Blank_CH7:
-SFX_Blank_CH8:
-    sound_end
-
-SFX_Test:
-    db  4,0
-    dw  SFX_Test_CH5
-    dw  SFX_Blank_CH6
-    dw  SFX_Blank_CH7
-    dw  SFX_Blank_CH8
-
-SFX_Test_CH5:
-    envelope $f1
-    pulse 2
-    octave 4
-    note C_,2
-    note D_,2
-    note E_,2
-    note F_,2
-    note G_,2
-    note A_,2
-    note B_,2
-    octave_up
-    note C_,2
-    sound_end
-    
+include "Audio/SFX/Select.asm"

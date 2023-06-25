@@ -23,6 +23,9 @@
 ; SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ; ================================================================
 
+MUSID_HOMETOWN  = 0
+MUSID_BATTLE1   = 1
+
 section "Music pointer table",rom0
 
 Sound_MusicPointers:

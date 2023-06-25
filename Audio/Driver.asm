@@ -23,6 +23,12 @@
 ; SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ; ================================================================
 
+; KNOWN ISSUES:
+; - SFX don't play unless music is playing
+; - Vibrato speed 1 doesn't work
+; - Vibrato speed 2 is buggy
+; - Noise isn't implemented yet
+
 ; note definitions
 __ = 0
 C_ = 1
@@ -194,7 +200,6 @@ Sound_Init:
     xor     a
 :   ld      [hl+],a
     djnz    :-
-    
     ret
 
 macro sound_update_channel
@@ -575,7 +580,9 @@ Sound_UpdateSFX:
     ld      a,[Sound_SFXPlaying]
     and     a
     jp      z,Sound_FinishedUpdating
-    ; fall through
+    ld      a,[Sound_SFXBank]
+    ld      b,a
+    rst     Bankswitch
     
     ; TODO: Subticks
  
@@ -699,6 +706,7 @@ Sound_UpdateRegisters:
 :   ldh     [rNR44],a
     res     7,a
     ld      [Sound_NR44],a
+    resbank
     ret
 .sfx4
     ld      a,[Sound_NR83]
@@ -713,6 +721,7 @@ Sound_UpdateRegisters:
 :   ldh     [rNR44],a
     res     7,a
     ld      [Sound_NR84],a
+    resbank
     ret
 
 
@@ -722,6 +731,7 @@ Sound_PlaySong:
     add     hl,de
     add     hl,de
     add     hl,de
+Sound_PlaySongDirect:
     ld      a,[hl+]
     ld      [Sound_MusicBank],a
     ld      b,a
@@ -761,15 +771,16 @@ Sound_PlaySong:
     ld      [Sound_CH2Tick],a
     ld      [Sound_CH3Tick],a
     ld      [Sound_CH4Tick],a
+    resbank
     ret
 
 ; Input: pointer to SFX header in HL, bank of SFX header in B
 Sound_PlaySFX:
-
     ld      hl,Sound_SFXPointers
     add     hl,de
     add     hl,de
     add     hl,de
+Sound_PlaySFXDirect:
     ld      a,[hl+]
     ld      [Sound_SFXBank],a
     ld      b,a
@@ -809,6 +820,7 @@ Sound_PlaySFX:
     ld      [Sound_CH6Tick],a
     ld      [Sound_CH7Tick],a
     ld      [Sound_CH8Tick],a
+    resbank
     ret
 
 ; INPUT: A = note, B = octave
@@ -864,7 +876,7 @@ Sound_Waves:
     db  $32,$22,$35,$67,$76,$42,$22,$22,$58,$bd,$ee,$ee,$ee,$ed,$ba,$76 ; bass 1
     db  $01,$23,$45,$67,$89,$ab,$cd,$ef,$55,$dc,$ba,$98,$76,$54,$32,$10 ; distorted triangle
 
-Mus_Dummy:
+Sound_DummySeq:
     sound_end
 
 include "Audio/MusicPointers.asm"

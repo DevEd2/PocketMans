@@ -52,6 +52,12 @@ _Down           equ 1 << btnDown
 
 ; --------
 
+; sound playback macros
+macro play_sfx
+    ld      de,\1
+    call    Sound_PlaySFX
+endm
+
 ; Script command definitions
 macro script_text
     db  $0
@@ -110,15 +116,13 @@ endm
 ; script_play_song ptr
 macro script_play_song
     db  $7
-    db  bank(\1)
-    dw  \1
+    db  \1
     endm
 
 ; script_play_sfx id
 macro script_play_sfx
     db  $8
-    db  bank(\1)
-    dw  \1
+    db  \1
     endm
 
 ; script_actor_move num,x,y
@@ -145,10 +149,14 @@ endm
 macro script_resume_text
     db  $c
 endm
+
+macro script_stop_music
+    db  $d
+endm
     
 ; script_asm_call addr
 macro script_asm_call
-    db  $f
+    db  $e
     db  bank(\1)
     dw  \1
 endm

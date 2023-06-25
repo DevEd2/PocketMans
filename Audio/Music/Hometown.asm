@@ -30,7 +30,7 @@ Mus_Hometown:
     dw  Mus_Hometown_CH1
     dw  Mus_Hometown_CH2
     dw  Mus_Hometown_CH3
-    dw  Mus_Dummy
+    dw  Sound_DummySeq
 
 
 Mus_Hometown_CH1:

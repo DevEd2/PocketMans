@@ -272,6 +272,9 @@ RunTextBox:
     jr      z,.contloop
     WaitForVRAM
     ld      [hl],$80
+    
+    play_sfx SFXID_SELECT
+	    
     pop     hl
     pop     de
     ret
@@ -442,6 +445,7 @@ ScriptCommands:
     dw      .actorwalk
     dw      .waitframes
     dw      .resume
+    dw      .stopmusic
     dw      .call
 
 .textbox
@@ -502,22 +506,17 @@ ScriptCommands:
 
 .song
     pop     hl
-    ld      a,[hl+]
-    ld      b,a
-;    rst     Bankswitch
-    push    hl
-    push    hl
-;    call    DSX_Init
-;    resbank
-    pop     hl
-    ld      a,[hl+]
-    ld      h,[hl]
-    ld      l,a
-;    farcall DSX_PlaySong
-;    resbank
-    pop     hl
+    ld      e,[hl]
+    ld      d,0
     inc     hl
-    inc     hl
+    push    hl
+    call    Sound_PlaySong
+    pop     hl
+    jp      RunScript.parseloop
+
+.stopmusic
+    call    Sound_Init
+    pop     hl
     jp      RunScript.parseloop
 
 .jz
@@ -541,7 +540,18 @@ ScriptCommands:
 .waitframes
 .sfx
     pop     hl
+    ld      e,[hl]
+    ld      d,0
     inc     hl
+    push    hl
+    call    Sound_PlaySFX
+    
+:   rst     WaitVBlank
+    ld      a,[Sound_Flags]
+    and     $f0
+    jr      nz,:-
+    
+    pop     hl
     jp      RunScript.parseloop
 
 .resume

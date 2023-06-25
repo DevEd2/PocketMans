@@ -23,7 +23,6 @@ GM_SoundTest:
     ld      de,_VRAM8800
     call    DecodeWLE
 
-    call    Sound_Init
     
     ldfar   hl,str_SoundTest_Music
     ld      de,$9820
@@ -46,6 +45,9 @@ GM_SoundTest:
     ld      [Debug_MenuMax],a
     ld      a,$18
     ld      [Debug_MenuYPos],a
+    
+    call    Sound_Init
+    
     ei
     
 SoundTestLoop:
