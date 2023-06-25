@@ -482,7 +482,7 @@ endc
 .end
     pop     hl
     ld      hl,Sound_Flags
-    res     \1-1,a
+    res     \1-1,[hl]
     ret
 
 endm
@@ -554,14 +554,14 @@ Sound_Update:
 Sound_UpdateMusic:
     ld      a,[Sound_MusicPlaying]
     and     a
-    jp      z,Sound_UpdateSFX
+    jr      z,Sound_UpdateSFX
     
     ; TODO: Subticks
  
     ld      a,[Sound_MusicTick]
     dec     a
     ld      [Sound_MusicTick],a
-    ret     nz
+    jr      nz,Sound_UpdateSFX
     ld      a,[Sound_MusicTempo]
     ld      [Sound_MusicTick],a
     call    Sound_UpdateCH1
@@ -570,17 +570,30 @@ Sound_UpdateMusic:
     call    Sound_UpdateCH4
     ; fall through
 
+; TODO: something about SFX is messing up music tempo
 Sound_UpdateSFX:
     ld      a,[Sound_SFXPlaying]
     and     a
     jp      z,Sound_FinishedUpdating
     ; fall through
+    
+    ; TODO: Subticks
+ 
+    ld      a,[Sound_SFXTick]
+    dec     a
+    ld      [Sound_SFXTick],a
+    jr      nz,Sound_FinishedUpdating
+    ld      a,[Sound_SFXTempo]
+    ld      [Sound_SFXTick],a
+    call    Sound_UpdateCH5
+    call    Sound_UpdateCH6
+    call    Sound_UpdateCH7
+    call    Sound_UpdateCH8
 
 Sound_FinishedUpdating:
 
 Sound_UpdateRegisters:
-    ld      b,b
-.check1 
+.check1
     ld      a,[Sound_Flags]
     bit     SFX_CH1,a
     jr      nz,.sfx1
@@ -614,7 +627,7 @@ Sound_UpdateRegisters:
     pop     af
 :   ldh     [rNR14],a
     res     7,a
-    ld      [Sound_NR14],a
+    ld      [Sound_NR54],a
 .check2
     ld      a,[Sound_Flags]
     bit     SFX_CH2,a
@@ -648,6 +661,8 @@ Sound_UpdateRegisters:
     ldh     [rNR22],a
     pop     af
 :   ldh     [rNR24],a
+    res     7,a
+    ld      [Sound_NR64],a
 .check3
     ld      a,[Sound_Flags]
     bit     SFX_CH3,a
@@ -697,7 +712,7 @@ Sound_UpdateRegisters:
     pop     af
 :   ldh     [rNR44],a
     res     7,a
-    ld      [Sound_NR44],a
+    ld      [Sound_NR84],a
     ret
 
 
@@ -736,7 +751,8 @@ Sound_PlaySong:
     ld      a,[hl+]
     ld      [Sound_CH4Pointer+1],a
     
-    ld      a,%00001111
+    ld      a,[Sound_Flags]
+    or      %00001111
     ld      [Sound_Flags],a
     and     1
     ld      [Sound_MusicPlaying],a
@@ -749,7 +765,50 @@ Sound_PlaySong:
 
 ; Input: pointer to SFX header in HL, bank of SFX header in B
 Sound_PlaySFX:
-    ld      b,b
+
+    ld      hl,Sound_SFXPointers
+    add     hl,de
+    add     hl,de
+    add     hl,de
+    ld      a,[hl+]
+    ld      [Sound_SFXBank],a
+    ld      b,a
+    rst     Bankswitch
+    ld      a,[hl+]
+    ld      h,[hl]
+    ld      l,a
+
+    ld      a,[hl+]
+    ld      [Sound_SFXTempo],a
+    ld      a,[hl+]
+    ld      [Sound_SFXTempo+1],a
+    ld      a,[hl+]
+    ld      [Sound_CH5Pointer],a
+    ld      a,[hl+]
+    ld      [Sound_CH5Pointer+1],a
+    ld      a,[hl+]
+    ld      [Sound_CH6Pointer],a
+    ld      a,[hl+]
+    ld      [Sound_CH6Pointer+1],a
+    ld      a,[hl+]
+    ld      [Sound_CH7Pointer],a
+    ld      a,[hl+]
+    ld      [Sound_CH7Pointer+1],a
+    ld      a,[hl+]
+    ld      [Sound_CH8Pointer],a
+    ld      a,[hl+]
+    ld      [Sound_CH8Pointer+1],a
+    
+    ld      a,[Sound_Flags]
+    or      %11110000
+    ld      [Sound_Flags],a
+    ld      a,1
+    ld      [Sound_SFXPlaying],a
+    ld      [Sound_SFXTick],a
+    ld      [Sound_CH5Tick],a
+    ld      [Sound_CH6Tick],a
+    ld      [Sound_CH7Tick],a
+    ld      [Sound_CH8Tick],a
     ret
 
 ; INPUT: A = note, B = octave
@@ -809,3 +868,4 @@ Mus_Dummy:
     sound_end
 
 include "Audio/MusicPointers.asm"
+include "Audio/SFXPointers.asm"

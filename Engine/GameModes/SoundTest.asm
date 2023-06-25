@@ -130,10 +130,14 @@ SoundTestLoop:
     ld      d,0
     call    Sound_PlaySong
     pop     de
-
     jr      .checkb
 .playsfx
-    ; TODO
+    ld      a,[Debug_SFXID]
+    push    de
+    ld      e,a
+    ld      d,0
+    call    Sound_PlaySFX
+    pop     de
 .checkb
     bit     btnB,e
     jr      z,.continue
