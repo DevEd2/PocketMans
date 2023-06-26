@@ -29,7 +29,6 @@ GetTileCoordinates:
 ; Output:   Metatile to screen RAM
 ; Destroys: BC, DE, HL
 DrawMetatile:
-    ld      b,b
     push    af
     ld      e,a
     and     $0f

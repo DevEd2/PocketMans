@@ -289,6 +289,7 @@ sys_SerialFlag:     db
 sys_JoypadFlag:     db
 sys_CurrentBank:    db
 sys_LastBank:       db
+sys_TempSP:         dw
 
 section "OAM DMA routine",hram[$fff0]
 sys_OAMDMA:         ds  15
@@ -717,6 +718,7 @@ include "Engine/Pic.asm"
 include "Engine/Text.asm"
 include "Engine/Mans.asm"
 include "Engine/Metatile.asm"
+include "Engine/TileAnimation.asm"
     
 ; ================================================================
 ; Interrupt handlers

@@ -106,7 +106,6 @@ MetatileViewer_GFXMenuLoop:
 .checkA
     bit     btnA,a
     jr      z,.drawcursor
-    ld      b,b
     ; PlaySFX menuselect
     ld      a,[Debug_MenuPos]
     ld      b,a
@@ -214,6 +213,17 @@ MetatileViewer_Viewer:
     inc     a
     jr      nz,:-
 
+    ; REMOVEME WATER TILE ANIM TEST
+    ld      a,$16
+    ld      [Anim_WaterTileID],a
+    ld      hl,$8160
+    ld      de,Anim_WaterTile
+    ld      b,16
+:   ld      a,[hl+]
+    ld      [de],a
+    inc     de
+    djnz    :-
+
     ld      a,LCDCF_ON | LCDCF_BG8000 | LCDCF_OBJON | LCDCF_BGON
     ldh     [rLCDC],a
     ld      a,IEF_VBLANK
@@ -246,7 +256,10 @@ MetatileViewer_ViewerLoop:
     call    ClearScreen2
     jp      MetatileViewer_GFXMenu
 
-:   halt
+:   ; REMOVEME WATER TILE ANIM TEST
+    call    AnimateWater
+
+    halt
     jr      MetatileViewer_ViewerLoop
 
 .up
