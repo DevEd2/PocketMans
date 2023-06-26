@@ -49,18 +49,14 @@ AnimateWater:
     ld      hl,Anim_WaterTile
     push    hl
     rept    4
-    ld      a,[hl]
-    rrca
-    ld      [hl+],a
-    ld      a,[hl]
-    rrca
-    ld      [hl+],a
-    ld      a,[hl]
-    rlca
-    ld      [hl+],a
-    ld      a,[hl]
-    rlca
-    ld      [hl+],a
+    rlc     [hl]
+    inc     hl
+    rlc     [hl]
+    inc     hl
+    rrc     [hl]
+    inc     hl
+    rrc     [hl]
+    inc     hl
     endr
     pop     hl
     ld      a,[Anim_WaterTileID]

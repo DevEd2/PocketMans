@@ -270,7 +270,7 @@ MetatileViewer_ViewerLoop:
 :   ; REMOVEME WATER TILE ANIM TEST
     call    AnimateWater
 
-    rst     WaitForVBlank
+    rst     WaitVBlank
     jr      MetatileViewer_ViewerLoop
 
 .up
