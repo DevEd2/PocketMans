@@ -45,7 +45,7 @@ Anim_CopyTile:
 
 AnimateWater:
     ld      a,[sys_CurrentFrame]
-    and     3
+    and     7
     ret     nz
     ld      hl,Anim_WaterTile
     push    hl
