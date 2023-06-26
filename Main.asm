@@ -52,6 +52,34 @@ _Down           equ 1 << btnDown
 
 ; --------
 
+; global struct definitions
+macro MansStruct
+MansData_\@:
+.start
+    ds  12 ; name
+    ds  1  ; mans type
+    ds  8  ; owner name
+    ds  2  ; owner ID
+    ds  1  ; held item
+    ds  1  ; level
+    ds  2  ; experience
+    ds  1  ; exp growth rate
+    ds  1  ; attack
+    ds  1  ; defense
+    ds  1  ; speed
+    ds  1  ; luck
+    ds  1  ; special attack
+    ds  1  ; special defense
+    ds  2  ; move 1 + uses left
+    ds  2  ; move 2 + uses left
+    ds  2  ; move 3 + uses left
+    ds  2  ; move 4 + uses left
+.end
+SIZEOF_MANS_STRUCT = .end-.start
+endm
+
+; --------
+
 ; sound playback macros
 macro play_sfx
     ld      de,\1
@@ -408,7 +436,7 @@ Start:
 include "Engine/GameModes/Debug.asm"
 include "Engine/GameModes/SpriteView.asm"
 include "Engine/GameModes/SoundTest.asm"
-
+include "Engine/GameModes/TilesetViewer.asm"
 include "Engine/GameModes/Overworld.asm"
 include "Engine/GameModes/Battle.asm"
 
@@ -643,12 +671,52 @@ GetScreenCoordinates:
     pop     bc
     pop     hl
     ret
+
+
+; Clear the screen.
+; TRASHES: a, bc, hl
+; RESTRICTIONS: Requires the LCD to be disabled, otherwise screen will not be properly cleared.
+ClearScreen:
+    ld      hl,_VRAM        ; clear from start of VRAM...
+    ld      bc,_SRAM-_VRAM   ; ...to end of VRAM.
+    call    _FillRAM
     
+    ; clear OAM
+    ld      hl,OAMBuffer
+    ld      b,OAMBuffer_End-OAMBuffer
+    xor     a
+    call    _FillRAMSmall
+    
+    ; reset scrolling
+    xor     a
+    ldh     [rSCX],a
+    ldh     [rSCY],a
+    ret
+
+; Same as ClearScreen, but preserves loaded graphics.
+ClearScreen2:; clear VRAM
+    ld      hl,_SCRN0        ; clear from start of VRAM...
+    ld      bc,_SRAM-_SCRN0   ; ...to end of VRAM.
+    call    _FillRAM
+    
+    ; clear OAM
+    ld      hl,OAMBuffer
+    ld      b,OAMBuffer_End-OAMBuffer
+    xor     a
+    call    _FillRAMSmall
+    
+    ; reset scrolling
+    xor     a
+    ldh     [rSCX],a
+    ldh     [rSCY],a
+    ret    
 
 include "Engine/WLE_Decode.asm"
 include "Engine/Math.asm"
 include "Engine/Pic.asm"
 include "Engine/Text.asm"
+include "Engine/Mans.asm"
+include "Engine/Metatile.asm"
     
 ; ================================================================
 ; Interrupt handlers
@@ -820,6 +888,8 @@ Font:   incbin  "GFX/Font.2bpp.wle"
 
 include "Data/MansNames.asm"
 include "Data/MansPics.asm"
+include "Data/MansDexEntries.asm"
+include "Data/Tilesets.asm"
 
 ; ================================================================
 ; Sound data

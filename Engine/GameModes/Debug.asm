@@ -57,7 +57,7 @@ DebugLoop:
     dec     [hl]
     ld      a,[hl]
     cp      $ff
-    jr      nz,.drawcursor
+    jp      nz,.drawcursor
     ld      a,[Debug_MenuMax]
     ld      [hl],a
     jr      .drawcursor
@@ -102,6 +102,7 @@ DebugLoop:
     dw      Debug_InvalidMenu
     dw      GM_SoundTest
     dw      .runtestscript
+    dw      GM_TilesetViewer
 NUM_DEBUG_ITEMS = ((@ - .menuitems) / 2) - 1
 
 .runtestscript
@@ -189,7 +190,7 @@ Debug_MainMenuText:
     db  "  MansDex           "
     db  "  Sound test        "
     db  "  Dialog test       "
-    db  "                    "
+    db  "  Tileset viewer    "
     db  "                    "
     db  "                    "
     db  " BUILD DATE:        "
