@@ -223,6 +223,17 @@ MetatileViewer_Viewer:
     ld      [de],a
     inc     de
     djnz    :-
+    
+    ; REMOVEME PARALLAX TILE TEST
+    ld      a,$31
+    ld      [Anim_ParallaxTileID],a
+    ld      hl,$8310
+    ld      de,Anim_ParallaxTile
+    ld      b,16
+:   ld      a,[hl+]
+    ld      [de],a
+    inc     de
+    djnz    :-
 
     ld      a,LCDCF_ON | LCDCF_BG8000 | LCDCF_OBJON | LCDCF_BGON
     ldh     [rLCDC],a
@@ -259,16 +270,29 @@ MetatileViewer_ViewerLoop:
 :   ; REMOVEME WATER TILE ANIM TEST
     call    AnimateWater
 
-    halt
+    rst     WaitForVBlank
     jr      MetatileViewer_ViewerLoop
 
 .up
+    push    af
+    ld      a,[hl]
+    and     a
+    jr      z,:+
+    dec     [hl]
+    ld      a,[sys_CurrentFrame]
+    and     1
+    call    z,AnimateParallaxU
+:   pop     af
+    ret
 .left
     push    af
     ld      a,[hl]
     and     a
     jr      z,:+
     dec     [hl]
+    ld      a,[sys_CurrentFrame]
+    and     1
+    call    z,AnimateParallaxL
 :   pop     af
     ret
 .down
@@ -277,6 +301,9 @@ MetatileViewer_ViewerLoop:
     cp      256-SCRN_Y
     jr      z,:+
     inc     [hl]
+    ld      a,[sys_CurrentFrame]
+    and     1
+    call    z,AnimateParallaxD
 :   pop     af
     ret
 .right
@@ -285,6 +312,9 @@ MetatileViewer_ViewerLoop:
     cp      256-SCRN_X
     jr      z,:+
     inc     [hl]
+    ld      a,[sys_CurrentFrame]
+    and     1
+    call    z,AnimateParallaxR
 :   pop     af
     ret
 
