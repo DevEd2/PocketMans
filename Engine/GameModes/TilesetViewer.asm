@@ -214,9 +214,9 @@ MetatileViewer_Viewer:
     jr      nz,:-
 
     ; REMOVEME WATER TILE ANIM TEST
-    ld      a,$16
+    ld      a,$17
     ld      [Anim_WaterTileID],a
-    ld      hl,$8160
+    ld      hl,$8170
     ld      de,Anim_WaterTile
     ld      b,16
 :   ld      a,[hl+]
@@ -225,9 +225,9 @@ MetatileViewer_Viewer:
     djnz    :-
     
     ; REMOVEME PARALLAX TILE TEST
-    ld      a,$30
+    ld      a,$2f
     ld      [Anim_ParallaxTileID],a
-    ld      hl,$8300
+    ld      hl,$82f0
     ld      de,Anim_ParallaxTile
     ld      b,16
 :   ld      a,[hl+]
