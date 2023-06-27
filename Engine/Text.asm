@@ -32,6 +32,8 @@ Text_TempHeight:    db
 ; used in case an error occurs during script/text processing
 Text_Byte:          db
 Text_Word:          dw
+Text_CancelScript:  db
+
 Text_NextFlag:      db
 
 Text_ScreenBuffer:  ds  32*32
@@ -176,7 +178,11 @@ RunTextBox:
     jr      nz,.error
     jp      hl
 .error
-    jr      .error
+    pop     hl
+    ld      a,1
+    ld      [Text_CancelScript],a
+    ldfar   hl,Text_Err_UnkTextCommand
+    jr      .parseloop
 .end
     pop     hl
     pop     de
@@ -375,6 +381,8 @@ Textbox_Scroll:
 
 ; INPUT: b = script bank, hl = script pointer
 RunScript:
+    xor     a
+    ld      [Text_CancelScript],a
     push    hl
     push    bc
     ; save screen buffer
@@ -394,6 +402,9 @@ RunScript:
     ld      a,b
     ld      [Script_Bank],a
 .parseloop
+    ld      a,[Text_CancelScript]
+    and     a
+    jr      nz,.done
     ld      a,[Script_Bank]
     ld      b,a
     rst     Bankswitch
@@ -428,8 +439,14 @@ RunScript:
     ret
 
 .error
-    ; TODO: Print error message
-    jr      .error
+    pop     hl
+    
+    lb      de,0,12
+    lb      bc,20,6
+    call    CreateWindow
+    ldfar   hl,Text_Err_UnkScriptCommand
+    call    RunTextBox
+    jr      .done
 
 ScriptCommands:
     dw      .textbox
@@ -471,7 +488,7 @@ ScriptCommands:
     ld      a,[hl+]
     ld      h,[hl]
     ld      l,a
-    jr      RunScript.parseloop
+    jp      RunScript.parseloop
 
 .pic
     pop     hl
@@ -588,24 +605,28 @@ ScriptCommands:
 section "Text engine error messages",romx
 Text_Err_UnkTextCommand:
 ;        ##################
+    db  TEXT_CLEAR
     db  "Unknown text cmd",TEXT_NEXT
     dbw TEXT_BYTE,Text_Byte
-    db  TEXT_END
+    db  TEXT_CONT,TEXT_END
 
 Text_Err_UnkScriptCommand:
 ;        ##################
+    db  TEXT_CLEAR
     db  "Unknown script cmd",TEXT_NEXT
     dbw TEXT_BYTE,Text_Byte
-    db  TEXT_END
+    db  TEXT_CONT,TEXT_END
 
 Text_Err_BadActor:
 ;        ##################
+    db  TEXT_CLEAR
     db  "Invalid actor ID",TEXT_NEXT
     dbw TEXT_BYTE,Text_Byte
-    db  TEXT_END
+    db  TEXT_CONT,TEXT_END
 
 Text_Err_BadCall:
 ;        ##################
+    db  TEXT_CLEAR
     db  "Invalid ASM call",TEXT_NEXT
     dbw TEXT_WORD,Text_Word
-    db  TEXT_END
+    db  TEXT_CONT,TEXT_END
