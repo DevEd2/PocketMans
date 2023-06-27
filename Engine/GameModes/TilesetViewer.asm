@@ -225,9 +225,9 @@ MetatileViewer_Viewer:
     djnz    :-
     
     ; REMOVEME PARALLAX TILE TEST
-    ld      a,$31
+    ld      a,$30
     ld      [Anim_ParallaxTileID],a
-    ld      hl,$8310
+    ld      hl,$8300
     ld      de,Anim_ParallaxTile
     ld      b,16
 :   ld      a,[hl+]
