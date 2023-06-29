@@ -19,8 +19,8 @@ MansNames:
     db  "BLADEMANS   "
     db  "KNIGHTMANS  "
     db  "BOSSMANS    "
-    db  "DEVEDMANS   "
-    db  "MANS021     "
+    db  "CHEFMANS    "
+    db  "CATGIRLMANS "
     db  "MANS022     "
     db  "MANS023     "
     db  "MANS024     "
@@ -99,5 +99,5 @@ MansNames:
     db  "MANS097     "
     db  "MANS098     "
     db  "MANS099     "
-    db  "MANS100     "
+    db  "DEVEDMANS   "
     

@@ -21,6 +21,7 @@ MansPicPointers::
     dwfar   Pic_Mans018
     dwfar   Pic_Mans019
     dwfar   Pic_Mans020
+    dwfar   Pic_Mans021
 
 section "Mans pic #001",romx
 Pic_Mans001::   dw  .front,.back
@@ -122,7 +123,12 @@ Pic_Mans020::   dw  .front,.back
 .front  incbin  "GFX/Mans/Front/020.png.wle"
 .back   incbin  "GFX/Mans/Back/020.png.wle"
 
+Pic_Mans021::   dw  .front,.back
+.front  incbin  "GFX/Mans/Front/021.png.wle"
+.back   incbin  "GFX/Mans/Back/021.png.wle"
+
 section "Unknown mans pic",romx
 Pic_MansUnknown::   dw  .front,.back
 .front  incbin  "GFX/Mans/Unknown.wle"
 .back   incbin  "GFX/Mans/Unknown.wle"
+

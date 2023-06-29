@@ -18,6 +18,8 @@ MansDexEntries:
     dw      MansDex_017
     dw      MansDex_018
     dw      MansDex_019
+    dw      MansDex_020
+    dw      MansDex_021
     dw      MansDex_999
 
 MansDex_001: ; FIGHTMANS
@@ -162,6 +164,8 @@ MansDex_015: ; BOOKMANS
 MansDex_016: ; LIBRARYMANS
 MansDex_017: ; BLADEMANS
 MansDex_018: ; KNIGHTMANS
+MansDex_020: ; CHEFMANS
+MansDex_021: ; CATGIRLMANS
 
 MansDex_Placeholder:
     dstr    "NEW"

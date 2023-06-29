@@ -103,7 +103,16 @@ DebugLoop:
     dw      GM_SoundTest
     dw      .runtestscript
     dw      GM_TilesetViewer
+    dw      .gototestmap
 NUM_DEBUG_ITEMS = ((@ - .menuitems) / 2) - 1
+
+.gototestmap
+    ; call    OW_Init
+    ; ldfar   hl,Map_Town0
+    ; lb      de,11,6
+    ; call    OW_LoadMap
+    ; jp      GM_Overworld
+    jr      Debug_InvalidMenu
 
 .runtestscript
     ld      a,56
@@ -191,7 +200,7 @@ Debug_MainMenuText:
     db  "  Sound test        "
     db  "  Dialog test       "
     db  "  Tileset viewer    "
-    db  "                    "
+    db  "  Test map          "
     db  "                    "
     db  " BUILD DATE:        "
     db  " "
