@@ -24,10 +24,8 @@
 ; ================================================================
 
 ; KNOWN ISSUES:
-; - SFX don't play unless music is playing
 ; - Vibrato speed 1 doesn't work
 ; - Vibrato speed 2 is buggy
-; - Noise isn't implemented yet
 
 ; note definitions
 __ = 0
@@ -59,6 +57,11 @@ macro note
     assert (\1 >= 0) & (\1 <= $10)
     assert (\2 >= 0) & (\2 <= $10)
     db  (\1 << 4) | (\2 - 1)
+endm
+
+macro noise
+    db  \1
+    db  \2
 endm
 
 macro rest
@@ -143,33 +146,38 @@ Sound_SFXTick:      db
 Sound_SFXSubtick:   db
 
 macro sound_channel_struct
-Sound_CH\1Pointer:      dw
-Sound_CH\1RetPointer:   dw
-Sound_CH\1LoopCount:    db
-Sound_CH\1Tick:         db
-Sound_CH\1Note:         db
-Sound_CH\1Octave:       db
-Sound_CH\1Envelope:     db
+Sound_CH\1Pointer:          dw
+Sound_CH\1RetPointer:       dw
+Sound_CH\1LoopCount:        db
+Sound_CH\1Tick:             db
+Sound_CH\1Note:             db
+Sound_CH\1Octave:           db
+Sound_CH\1Envelope:         db
 if (((\1-1)%4 == 0) | ((\1-1)%4 == 1))
-Sound_CH\1Pulse:        db
+Sound_CH\1Pulse:            db
 endc
 if (\1-1)%4 == 2
-Sound_CH\1Wave:         db
+Sound_CH\1Wave:             db
 endc
 if (\1-1)%4 != 3
-Sound_CH\1PitchOffset:  db
-Sound_CH\1VibDepth:     db
-Sound_CH\1VibSpeed:     db
-Sound_CH\1VibDelay:     db
-Sound_CH\1VibDelay2:    db
-Sound_CH\1VibTick:      db ; high byte = phase
-Sound_CH\1VibOffset:    dw
+Sound_CH\1PitchOffset:      db
+Sound_CH\1VibDepth:         db
+Sound_CH\1VibSpeed:         db
+Sound_CH\1VibDelay:         db
+Sound_CH\1VibDelay2:        db
+Sound_CH\1VibTick:          db ; high byte = phase
+Sound_CH\1VibOffset:        dw
+Sound_CH\1DetuneFlag:       db
+else
+Sound_CH\1NoiseSeqBank:     db
+Sound_CH\1NoiseSeqPtr:      dw
+Sound_CH\1NoiseSeqTimer:    db
 endc
-Sound_NR\10:            db
-Sound_NR\11:            db
-Sound_NR\12:            db
-Sound_NR\13:            db
-Sound_NR\14:            db
+Sound_NR\10:                db
+Sound_NR\11:                db
+Sound_NR\12:                db
+Sound_NR\13:                db
+Sound_NR\14:                db
 endm
 
     sound_channel_struct 1
@@ -214,13 +222,17 @@ Sound_UpdateCH\1:
     ld      a,[Sound_CH\1Tick]
     dec     a
     ld      [Sound_CH\1Tick],a
+ if (\1-1)%4 != 3
     ret     nz
+ else
+    ret     nz
+ endc
     ld      hl,Sound_CH\1Pointer
     ld      a,[hl+]
     ld      h,[hl]
     ld      l,a
- if (\1-1)%4 != 3
     jr      .getbyte
+ if (\1-1)%4 != 3
 .dopitch
     ld      a,[Sound_CH\1Octave]
     ld      b,a
@@ -233,19 +245,70 @@ Sound_UpdateCH\1:
     ld      l,a
     pop     de
     add     hl,de
-    ld      a,l
+    ld      a,[Sound_CH\1DetuneFlag]
+    and     a
+    jr      z,:+
+    ld      de,-1
+    add     hl,de
+:   ld      a,l
     ld      [Sound_NR\13],a
     ld      a,h
     ld      [Sound_NR\14],a
     ret
- endc 
+ else
+.donoiseseq
+    ld      a,[Sound_Flags]
+    bit     \1-1,a
+    ret     z
+    ld      a,[Sound_CH\1NoiseSeqTimer]
+    dec     a
+    ld      [Sound_CH\1NoiseSeqTimer],a
+    ret     nz
+    ld      a,[Sound_CH\1NoiseSeqBank]
+    ld      b,a
+    rst     Bankswitch
+    ld      hl,Sound_CH\1NoiseSeqPtr
+    ld      a,[hl+]
+    ld      h,[hl]
+    ld      l,a
+    ; first byte: flags
+    ld      a,[hl+]
+    cp      $ff
+    ret     z
+    ld      e,a
+    bit     0,e
+    call    nz,.noiseseq_envelope
+    bit     1,e
+    call    nz,.noiseseq_noise
+    bit     2,e
+    call    nz,.noiseseq_reset
+    ld      a,[hl+]
+    ld      [Sound_CH\1NoiseSeqTimer],a
+    ld      a,l
+    ld      [Sound_CH\1NoiseSeqPtr],a
+    ld      a,h
+    ld      [Sound_CH\1NoiseSeqPtr+1],a
+    ret
+.noiseseq_envelope
+    ld      a,[hl+]
+    ld      [Sound_NR\12],a
+    ret
+.noiseseq_noise
+    ld      a,[hl+]
+    ld      [Sound_NR\13],a
+    ret
+.noiseseq_reset
+    ld      a,$80
+    ld      [Sound_NR\14],a
+    ret
+ endc
     
 .getbyte
     ld      a,[hl+]
     cp      $e0
     jr      nc,.command
 .note
-if (\1-1)%4 != 3
+ if (\1-1)%4 != 3
     push    hl
     ld      e,a
     and     $f0
@@ -258,6 +321,14 @@ if (\1-1)%4 != 3
     and     $0f
     inc     a
     ld      [Sound_CH\1Tick],a
+ else
+    and     a
+    jr      z,.rest
+    ld      [Sound_CH\1Note],a
+    ld      a,[hl+]
+    ld      [Sound_CH\1Tick],a
+ endc
+if (\1-1)%4 != 3
     ld      a,[Sound_CH\1Envelope]
     ld      [Sound_NR\12],a
  if ((\1-1)%4 == 0) | ((\1-1)%4 == 1)
@@ -280,20 +351,41 @@ if (\1-1)%4 != 3
     ld      [Sound_CH\1VibOffset+1],a
  if (\1-1)%4 != 3
     call    .dopitch
-    
  endc
     jr      :+
+else
+    push    hl
+    ld      a,[Sound_CH\1Note]
+    ld      e,a
+    ld      d,0
+    ld      hl,Sound_NoiseSequencePointers
+    add     hl,de
+    add     hl,de
+    add     hl,de
+    ld      a,[hl+]
+    ld      [Sound_CH\1NoiseSeqBank],a
+    ld      a,[hl+]
+    ld      [Sound_CH\1NoiseSeqPtr],a
+    ld      a,[hl+]
+    ld      [Sound_CH\1NoiseSeqPtr+1],a
+    ld      a,1
+    ld      [Sound_CH\1NoiseSeqTimer],a
+    call    .donoiseseq
+    jr      :+
+endc
+
 .rest
     xor     a
     ld      [Sound_NR\12],a
+ if (\1-1)%4 != 3
     ld      a,e
     and     $0f
+ else
+    ld      a,[hl+]
+ endc
     inc     a
     ld      [Sound_CH\1Tick],a
 :   
-else
-    ; TODO: CH4 processing
-endc
     pop     hl
     ld      a,l
     ld      [Sound_CH\1Pointer],a
@@ -325,7 +417,7 @@ endc
     dw      .call
     dw      .return
     dw      .loop
-    dw      .dummy
+    dw      .toggledetune
     dw      .dummy
     dw      .dummy
     dw      .dummy
@@ -484,6 +576,15 @@ endc
     inc     hl
     jp      .getbyte
 
+.toggledetune
+    if (\1-1)%4 != 3
+    ld      a,[Sound_CH\1DetuneFlag]
+    xor     1
+    ld      [Sound_CH\1DetuneFlag],a
+    endc
+    pop     hl
+    jp      .getbyte
+
 .end
     pop     hl
     ld      hl,Sound_Flags
@@ -535,6 +636,7 @@ Sound_VibratoCH\1:
 :   ld      [Sound_CH\1VibOffset],a
     xor     a
     ld      [Sound_CH\1VibOffset+1],a
+    
     jp      Sound_UpdateCH\1.dopitch
     
 endm
@@ -551,10 +653,14 @@ Sound_Update:
     ld      b,a
     rst     Bankswitch
     
-    ; TODO: vibrato
     call    Sound_VibratoCH1
     call    Sound_VibratoCH2
     call    Sound_VibratoCH3
+    call    Sound_VibratoCH5
+    call    Sound_VibratoCH6
+    call    Sound_VibratoCH7
+    call    Sound_UpdateCH4.donoiseseq
+    call    Sound_UpdateCH8.donoiseseq
     
 Sound_UpdateMusic:
     ld      a,[Sound_MusicPlaying]
@@ -879,5 +985,6 @@ Sound_Waves:
 Sound_DummySeq:
     sound_end
 
+include "Audio/Percussion.asm"
 include "Audio/MusicPointers.asm"
 include "Audio/SFXPointers.asm"

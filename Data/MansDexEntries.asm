@@ -146,6 +146,18 @@ MansDex_019: ; BOSSMANS
     db      "meetings with nearby",TEXT_NEXT
     db      "BIZMANSes.",TEXT_END
 
+MansDex_021: ; CATGIRLMANS
+    db      "KAWAII"
+;            ####################
+    db      "The result of",TEXT_NEXT
+    db      "genetic experiment-",TEXT_NEXT
+    db      "ation gone horribly",TEXT_NEXT
+    db      "wrong.",TEXT_CONT
+    db      "It is a fusion of a",TEXT_NEXT
+    db      "MANS and a strange",TEXT_NEXT
+    db      "creature known as",TEXT_NEXT
+    db      "a cat.",TEXT_END
+
 MansDex_999: ; DEVEDMANS
     dstr    "THE CREATOR OF"
 ;            ####################
@@ -165,7 +177,6 @@ MansDex_016: ; LIBRARYMANS
 MansDex_017: ; BLADEMANS
 MansDex_018: ; KNIGHTMANS
 MansDex_020: ; CHEFMANS
-MansDex_021: ; CATGIRLMANS
 
 MansDex_Placeholder:
     dstr    "NEW"
