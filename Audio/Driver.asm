@@ -151,8 +151,10 @@ Sound_CH\1RetPointer:       dw
 Sound_CH\1LoopCount:        db
 Sound_CH\1Tick:             db
 Sound_CH\1Note:             db
+if (\1-1)%4 != 3
 Sound_CH\1Octave:           db
 Sound_CH\1Envelope:         db
+endc
 if (((\1-1)%4 == 0) | ((\1-1)%4 == 1))
 Sound_CH\1Pulse:            db
 endc
@@ -449,8 +451,10 @@ endc
 
 .envelope
     pop     hl
+    if (\1-1)%4 != 3
     ld      a,[hl+]
     ld      [Sound_CH\1Envelope],a
+    endc
     jp      .getbyte
 
 .pulse
