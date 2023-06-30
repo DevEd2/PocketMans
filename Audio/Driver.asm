@@ -981,6 +981,7 @@ Sound_Waves:
     db  $01,$23,$45,$67,$89,$ab,$cd,$ef,$fe,$dc,$ba,$98,$76,$54,$32,$10 ; triangle
     db  $32,$22,$35,$67,$76,$42,$22,$22,$58,$bd,$ee,$ee,$ee,$ed,$ba,$76 ; bass 1
     db  $01,$23,$45,$67,$89,$ab,$cd,$ef,$55,$dc,$ba,$98,$76,$54,$32,$10 ; distorted triangle
+    db  $00,$38,$B8,$00,$00,$23,$58,$ab,$bb,$b2,$2b,$bb,$de,$ff,$ea,$30 ; distorted "square"
 
 Sound_DummySeq:
     sound_end

@@ -25,12 +25,15 @@
 
 MUSID_HOMETOWN  = 0
 MUSID_BATTLE1   = 1
+MUSID_CITY1     = 2
 
 section "Music pointer table",rom0
 
 Sound_MusicPointers:
     dwfar   Mus_Hometown
     dwfar   Mus_Battle1
+    dwfar   Mus_City1
 
 include "Audio/Music/Hometown.asm"
 include "Audio/Music/Battle1.asm"
+include "Audio/Music/City1.asm"
