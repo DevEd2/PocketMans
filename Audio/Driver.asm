@@ -250,8 +250,7 @@ Sound_UpdateCH\1:
     ld      a,[Sound_CH\1DetuneFlag]
     and     a
     jr      z,:+
-    ld      de,-1
-    add     hl,de
+    dec     hl
 :   ld      a,l
     ld      [Sound_NR\13],a
     ld      a,h
