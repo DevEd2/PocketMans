@@ -68,6 +68,7 @@ Mus_Battle1_CH1:
     note D#,4
     note C#,4
     sound_loop :-,2
+    toggle_detune
 .loop
     octave 4
 :   note G_,4

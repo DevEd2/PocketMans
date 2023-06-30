@@ -112,6 +112,10 @@ macro sound_loop
     dw  \1
 endm
 
+macro toggle_detune
+    db  $e7
+endm
+
 macro sound_end
     db  $ff
 endm
@@ -250,7 +254,7 @@ Sound_UpdateCH\1:
     ld      a,[Sound_CH\1DetuneFlag]
     and     a
     jr      z,:+
-    dec     hl
+    inc     hl
 :   ld      a,l
     ld      [Sound_NR\13],a
     ld      a,h
