@@ -382,6 +382,8 @@ endc
 .rest
     xor     a
     ld      [Sound_NR\12],a
+    ld      a,$80
+    ld      [Sound_NR\14],a
  if (\1-1)%4 != 3
     ld      a,e
     and     $0f

@@ -28,6 +28,12 @@ SFXID_SELECT    = 0
 section "SFX pointer table",rom0
 
 Sound_SFXPointers:
-    dwfar SFX_Select
+    dwfar   SFX_Select
+    dwfar   SFX_PCBootup
+    dwfar   SFX_PCCursor
+    dwfar   SFX_PCSelect
+    dwfar   SFX_PCAlert
+    dwfar   SFX_PCShutdown
 
 include "Audio/SFX/Select.asm"
+include "Audio/SFX/PCSounds.asm"
